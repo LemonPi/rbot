@@ -38,7 +38,7 @@ extern int target_l, target_r;	// target time between ticks
 extern int out_l, out_r;			// output values
 
 // internal coordinates
-extern double x, y, theta;	
+extern double x, y, theta, tot_distance;	
 
 // waypoint navigation
 extern Target targets[TARGET_MAX];
@@ -58,8 +58,11 @@ extern byte sensors[SENSOR_MAX];
 extern byte indicators[SENSOR_MAX];
 extern int readings[SENSOR_MAX];
 extern int thresholds[SENSOR_MAX];
-extern int prev_on_line, counted_lines;
+extern int cycles_on_line, counted_lines;
 extern bool square_turn;
+extern bool deviate_from_line;
+extern float pre_deviate_distance;
+extern byte side_correct;
 
 extern bool drive, on;
 
@@ -68,6 +71,7 @@ void tick_left();
 void tick_right();
 
 bool on_line(byte pin);
+bool is_intersection(int x, int y);
 // restrict values between low and high limits
 void clamp(int& parameter, int low, int high);
 void pid_control(int tl, int tr);
@@ -90,6 +94,10 @@ void avoid_boundary();
 // decide which is the highest active layer to pass to motor control
 void arbitrate();
 void motor_control(byte layer);
+
+
+void user_behaviours();
+void user_waypoint();
 
 
 
@@ -115,6 +123,8 @@ bool correct(); // correct lines to be called in a loop
 // calibrate the sensors
 void calibrate();
 void indicate_sensors();
+void correct_to_grid();
+void correct_to_line();
 
 
 

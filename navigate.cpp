@@ -44,10 +44,12 @@ void hard_turn() {
 	// square turns can rely on lines to align angles, center has to be on a line
 	if (sensor_num == SENSOR_MAX && square_turn && on_line(CENTER)) {
 		// completed turn when sides are also on line
-		if (on_line(LEFT) && on_line(RIGHT)) {
+		Serial.print("tt ");
+		Serial.println(abs(to_turn));
+		if (on_line(LEFT) && on_line(RIGHT) && abs(to_turn) < THETA_TOLERANCE) {
 			// fix theta to be the closest HALFPI / theta (set by target_theta)
 			theta = targets[target].theta;
-			Serial.println("lt");
+			Serial.println("st");
 			waypoint();
 			return;
 		}
@@ -162,8 +164,10 @@ void waypoint() {
 		layers[LAYER_NAV].active = true;
 	}
 	// reached last target
-	else {
+	else if (target == 0) {
+		--target;
 		layers[LAYER_NAV].active = false;
+		layers[LAYER_TURN].active = false;
 	}
 	// get next target by checking current position against game state
 
@@ -173,6 +177,7 @@ void waypoint() {
 		layers[LAYER_TURN].active = false;
 	} 
 	
+	user_waypoint();
 }
 
 }

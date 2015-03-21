@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <hbridge.h>	// assumes motors are controlled by hbridges
 #include <robot.h>
-// #include "parameters.h"
+#include "parameters.h"
 
 namespace robot {
 
@@ -23,7 +23,7 @@ int target_l, target_r;	// target time between ticks
 int out_l, out_r;			// output values
 
 // internal coordinates
-double x, y, theta;	
+double x, y, theta, tot_distance;	
 
 // waypoint navigation
 Target targets[TARGET_MAX];
@@ -43,8 +43,11 @@ byte sensors[SENSOR_MAX];
 byte indicators[SENSOR_MAX];
 int readings[SENSOR_MAX];
 int thresholds[SENSOR_MAX];
-int prev_on_line, counted_lines;
+int cycles_on_line, counted_lines;
 bool square_turn;
+bool deviate_from_line;
+float pre_deviate_distance;
+byte side_correct;
 
 bool drive, on;
 
@@ -65,7 +68,6 @@ bool go() {
 	process_cycles = 1;
 	// update internal position and do speed control
 	odometry();
-	// correct position heading if necessary
 
 
 	// might have to reprocess cycle if waypoint is reached
@@ -76,13 +78,15 @@ bool go() {
 		avoid_boundary();
 		hard_turn();
 
+		user_behaviours();
 
 		arbitrate();
 		--process_cycles;
 	}
 
 	pid_control(instant_tick_l, instant_tick_r);
-	if (drive) {
+
+	if (drive != MANUAL) {
 		l.drive(out_l);
 		r.drive(out_r);
 	}
@@ -92,14 +96,19 @@ bool go() {
 	return true;
 }
 
+// called every loop, position correction system
 bool correct() {
-	if (!on) return false;
 	unsigned long now = millis();
 	unsigned long elapsed = now - time_prev_sensors;
 	if (now - time_prev_sensors < SENSOR_TIME) return false;
 
+	// also updates readings
 	indicate_sensors();
+
+	if (!on) return false;
+	// corrects internal positioning
 	line_detect();
+
 
 	time_prev_sensors = now;
 	return true;
@@ -117,7 +126,7 @@ void initialize_robot(byte c1_l, byte c2_l, byte outpin_l, byte c1_r, byte c2_r,
 	out_l = out_r = 100;
 
 	// internal positioning and navigation
-	x = y = theta = 0;
+	x = y = theta = tot_distance = 0;
 	target_distance = last_target_distance = heading_error = 0;
 	target = NONE_ACTIVE;
 	process_cycles = 1;
@@ -130,11 +139,13 @@ void initialize_robot(byte c1_l, byte c2_l, byte outpin_l, byte c1_r, byte c2_r,
 	// line detection and other sensor related behaviours
 	time_prev_sensors = 0;
 	sensor_num = 0;
-	prev_on_line = 0;	// counter for continuous cycles on line
+	cycles_on_line = 0;	// counter for continuous cycles on line
 	counted_lines = 0;
 	square_turn = false;
+	deviate_from_line = false;
+	side_correct = 0;
 
-	drive = true;
+	drive = AUTOMATIC;
 	on = false; 
 
 	// initial setup
@@ -155,9 +166,17 @@ void clamp(int& parameter, int low, int high) {
 	else if (parameter < low) parameter = low;	
 }
 
+bool is_intersection(int x, int y) {
+	return (x % GRID_WIDTH) & (y % GRID_WIDTH) == 0;
+}
+
 void start() {
+	Serial.println(theta*RADS);
 	on = true;
 	tick_l = tick_r = 0;
+	cycles_on_line = 0;
+	counted_lines = 0;
+	deviate_from_line = false;
 	if (target != NONE_ACTIVE) layers[LAYER_NAV].active = true;
 	if (dir_l == FORWARD) l.forward();
 	else l.backward();
@@ -224,17 +243,18 @@ void odometry() {
 
 	// update internal position
 	// distances in mm
+	if (drive == MANUAL) {dir_l = dir_r = FORWARD;}
 	double distance_l = dir_l * (double)instant_tick_l * MM_PER_TICK_L;
 	double distance_r = dir_r * (double)instant_tick_r * MM_PER_TICK_R;
 	double distance = (distance_l + distance_r) * 0.5;
+	tot_distance += distance;
 
-	// theta += atan((distance_l - distance_r) * RECIPROCAL_BASE_WIDTH);
 	theta += atan2(distance_l - distance_r, BASE_WIDTH);
 	x += distance * cos(theta);
 	y += distance * sin(theta);
 	// keep theta within [-180,180]
-	if (theta > PI) theta = TWOPI - theta;
-	else if (theta < -PI) theta = TWOPI + theta;
+	if (theta > PI) theta -= TWOPI;
+	else if (theta < -PI) theta += TWOPI;
 }
 
 

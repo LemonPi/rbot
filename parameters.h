@@ -1,90 +1,116 @@
 #pragma once
+#include <Arduino.h>
+
+namespace robot {
 // mathematical constants
-#define TWOPI 6.2831853070
-#define PI 3.1415926536
-#define HALFPI 1.5707963268
+constexpr float TWOPI = 6.2831853070;
+constexpr float HALFPI = 1.5707963268;
+constexpr float QUARTERPI = 0.78539816339;
+constexpr float DEGS = 0.0174532925;
+constexpr float RADS = 57.29577951;
+
+// drive modes
+constexpr bool MANUAL = false;
+constexpr bool AUTOMATIC = true;
 
 // subsumption layers
-#define LAYER_NUM 5
-#define LAYER_BUMP 0	// highest priority
-#define LAYER_BOUND 1
-#define LAYER_TURN 2
-#define LAYER_NAV 3
-#define LAYER_WAIT 4
+constexpr byte LAYER_NUM = 7;
+constexpr byte LAYER_BUMP = 0;	// highest priority
+constexpr byte LAYER_BOUND = 1;
+constexpr byte LAYER_TURN = 2;
+constexpr byte LAYER_NAV = 3;
+constexpr byte LAYER_GET = 4;	// retrieve from hopper
+constexpr byte LAYER_PUT = 5;	// deposit ball to rendevous
+constexpr byte LAYER_WAIT = 6;
 
-#define CYCLE_TIME 50 	// in ms
-#define SENSOR_TIME 10  // in ms, 5x faster than navigation cycles
+constexpr int CYCLE_TIME = 50; 	// in ms
+constexpr int SENSOR_TIME = 10;  // in ms, 5x faster than navigation cycles
 
 // maximum array bounds
-#define BOUNDARY_MAX 14
-#define TARGET_MAX 10
-#define SENSOR_MAX 4
+constexpr byte BOUNDARY_MAX = 14;
+constexpr byte TARGET_MAX = 10;
+constexpr byte SENSOR_MAX = 4;
 
 
 
 // sensor indices
-#define CENTER 0		// center sensor is sensor 0
-#define LEFT 1
-#define RIGHT 2
-#define BALL 3
+constexpr byte CENTER = 0;		// center sensor is sensor 0
+constexpr byte LEFT = 1;
+constexpr byte RIGHT = 2;
+constexpr byte BALL = 3;
+constexpr float SIDE_SENSOR_DISTANCE = 23;
 
 // PID speed control
-#define FORWARD 1
-#define BACKWARD (-1)
+constexpr int FORWARD = 1;
+constexpr int BACKWARD = -1;
 
-#define BASE_WIDTH 99.0
-#define RECIPROCAL_BASE_WIDTH 0.01004009	// using reciprocal due to faster multiply than divide
-#define MM_PER_TICK_L 0.1721899559
-#define MM_PER_TICK_R 0.16866084148
+constexpr float BASE_WIDTH = 99.0;
+constexpr float RECIPROCAL_BASE_WIDTH = 0.01004009;	// using reciprocal due to faster multiply than divide
+constexpr float MM_PER_TICK_L = 0.1721899559;
+constexpr float MM_PER_TICK_R = 0.16866084148;
 
-#define KP 1.194
-#define KI 1.2
-#define KD 0.005
+constexpr float KP = 1.194;
+constexpr float KI = 1.2;
+constexpr float KD = 0.005;
 
-#define TPR 1200
+constexpr int TPR = 1200;
 
-#define TOP_SPEED 55 	// in ticks per cycle 
-#define MIN_SPEED 20
-#define START_SPEED 55
+constexpr int TOP_SPEED = 55; 	// in ticks per cycle 
+constexpr int MIN_SPEED = 20;
+constexpr int START_SPEED = 55;
 
 
 // navigation
-#define TARGET_CIRCLE 10.0	// allow for 20mm error from target
-#define TARGET_IMMEDIATE 5.0// don't try to get closer than 3mm (fixes high heading error when really close)
-#define TARGET_CLOSE 200.0	// slow down 100mm from target
-#define NAV_TURN 20			// turn size in ticks/cycle, adjustable
-#define THETA_TOLERANCE 0.03	// around 3 degree turning
+constexpr float TARGET_CIRCLE = 10.0;	// allow for 20mm error from target
+constexpr float TARGET_IMMEDIATE = 5.0;// don't try to get closer than 3mm (fixes high heading error when really close)
+constexpr float TARGET_CLOSE = 200.0;	// slow down 100mm from target
+constexpr int NAV_TURN = 20;			// turn size in ticks/cycle, adjustable
+constexpr float THETA_TOLERANCE = 0.03;	// around 3 degree turning
 
-#define ANY_THETA 9000	// if no target is set
+constexpr int ANY_THETA = 9000;	// if no target is set
 
-#define TURNING_IN_PLACE 8000
-#define CAN_TURN_IN_PLACE 0.5 // minimum angle to activate turning in place
+constexpr int TURNING_IN_PLACE = 8000;
+constexpr float CAN_TURN_IN_PLACE = 0.8; // minimum angle to activate turning in place
 
 
 
 // boundary avoidance
-#define BOUNDARY_TOO_CLOSE 200	// 200 mm from center of wheels
-#define BOUNDARY_FAR_ENOUGH 100	// can stop tracking active boundary this far away
-#define BOUNDARY_TOLERANCE HALFPI // corresponds to how wide it is
-#define EXISTENTIAL_THREAT 0.3*BOUNDARY_TOO_CLOSE
+constexpr int BOUNDARY_TOO_CLOSE = 200;	// 200 mm from center of wheels
+constexpr int BOUNDARY_FAR_ENOUGH = 100;	// can stop tracking active boundary this far away
+constexpr float BOUNDARY_TOLERANCE = HALFPI; // corresponds to how wide it is
+constexpr float EXISTENTIAL_THREAT = 0.3*BOUNDARY_TOO_CLOSE;
 
-#define BOUND_TURN 20		// how hard to turn away from obstacle; adjustable
+constexpr int BOUND_TURN = 20;		// how hard to turn away from obstacle; adjustable
 
-#define NONE_ACTIVE -1
+constexpr int NONE_ACTIVE = -1;
 
 // hopper indices, 3-hoppers are loaded first
-#define HOPPER1 3
-#define HOPPER2 7
-#define HOPPER3 10
-#define HOPPER4 13
+constexpr byte HOPPER1 = 3;
+constexpr byte HOPPER2 = 7;
+constexpr byte HOPPER3 = 10;
+constexpr byte HOPPER4 = 13;
 
-#define PILLAR_RADIUS 24.15
-#define HOPPER_RADIUS 20.55
-#define COLONY_RADIUS 150
+constexpr float PILLAR_RADIUS = 24.15;
+constexpr float HOPPER_RADIUS = 20.55;
+constexpr int COLONY_RADIUS = 150;
 
 // line detecting sensors
-#define CALLIBRATION_TIME 7000	// 5s
-#define LINE_WIDTH 10 			// about 1cm
-#define GRID_WIDTH 200			// grid spaced about 200mm apart
-#define CYCLES_ON_LINE 2 		// 
-#define LINES_PER_CORRECT 3
+constexpr int CALLIBRATION_TIME = 5000;	// 5s
+constexpr int LINE_WIDTH = 10; 			// about 1cm
+constexpr float HALF_LINE_WIDTH = 2.5;
+constexpr int GRID_WIDTH = 200;			// grid spaced about 200mm apart
+constexpr int CYCLES_CROSSING_LINE = 2; 	// cycles on line for false positive to fail
+constexpr int CYCLES_FOLLOWING_LINE = 100;
+constexpr int CYCLES_DEVIATE_LINE = 3;	// cycles off of previously following a line to count
+constexpr int CYCLES_PER_CORRECT = 10; 	// once following a line, number of cycles before correcting
+constexpr int LINES_PER_CORRECT = 2;
+
+// constexpr int OFFSET_GAIN = 2;
+// constexpr float OFFSET_LINE_CORRECT = 1.0;	// how much to correct by when veering off line
+
+constexpr int DIR_UP = 0;
+constexpr int DIR_LEFT = -90;
+constexpr int DIR_RIGHT = 90;
+constexpr int DIR_BACK = 180;
+
+}
