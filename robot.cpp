@@ -49,7 +49,9 @@ bool deviate_from_line;
 float pre_deviate_distance;
 byte side_correct;
 
-bool drive, on;
+float last_correct_distance;
+
+bool drive, on, paused;
 
 const double kp = KP;
 const double ki = KI * (CYCLE_TIME / 1000.0);
@@ -109,6 +111,7 @@ bool correct() {
 	// corrects internal positioning
 	line_detect();
 
+	user_correct();
 
 	time_prev_sensors = now;
 	return true;
@@ -146,7 +149,7 @@ void initialize_robot(byte c1_l, byte c2_l, byte outpin_l, byte c1_r, byte c2_r,
 	side_correct = 0;
 
 	drive = AUTOMATIC;
-	on = false; 
+	on = paused = false; 
 
 	// initial setup
 	for (byte l = 0; l < LAYER_NUM; ++l) layers[l].active = false;
@@ -176,20 +179,29 @@ void start() {
 	tick_l = tick_r = 0;
 	cycles_on_line = 0;
 	counted_lines = 0;
-	deviate_from_line = false;
+	last_correct_distance = 0;
+	// deviate_from_line = false;
 	if (target != NONE_ACTIVE) layers[LAYER_NAV].active = true;
+	resume_drive();
+}
+
+void stop() {
+	on = false;
+	hard_break();
+}
+
+void hard_break() {	
+	paused = true;
+	l.stop(); 
+	r.stop();
+}
+void resume_drive() {
+	paused = false;
 	if (dir_l == FORWARD) l.forward();
 	else l.backward();
 	if (dir_r == FORWARD) r.forward();
 	else r.backward();
 }
-
-void stop() {
-	on = false;
-	l.stop(); 
-	r.stop();
-}
-
 
 void pid_control(int tl, int tr) {
 	int error_l = target_l - tl;

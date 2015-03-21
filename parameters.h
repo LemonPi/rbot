@@ -15,8 +15,8 @@ constexpr bool AUTOMATIC = true;
 
 // subsumption layers
 constexpr byte LAYER_NUM = 7;
-constexpr byte LAYER_BUMP = 0;	// highest priority
-constexpr byte LAYER_BOUND = 1;
+constexpr byte LAYER_BOUND = 0; // highest priority
+constexpr byte LAYER_COR = 1;	
 constexpr byte LAYER_TURN = 2;
 constexpr byte LAYER_NAV = 3;
 constexpr byte LAYER_GET = 4;	// retrieve from hopper
@@ -38,7 +38,7 @@ constexpr byte CENTER = 0;		// center sensor is sensor 0
 constexpr byte LEFT = 1;
 constexpr byte RIGHT = 2;
 constexpr byte BALL = 3;
-constexpr float SIDE_SENSOR_DISTANCE = 23;
+constexpr float SIDE_SENSOR_DISTANCE = 16;
 
 // PID speed control
 constexpr int FORWARD = 1;
@@ -101,16 +101,18 @@ constexpr float HALF_LINE_WIDTH = 2.5;
 constexpr int GRID_WIDTH = 200;			// grid spaced about 200mm apart
 constexpr int CYCLES_CROSSING_LINE = 2; 	// cycles on line for false positive to fail
 constexpr int CYCLES_FOLLOWING_LINE = 100;
-constexpr int CYCLES_DEVIATE_LINE = 3;	// cycles off of previously following a line to count
-constexpr int CYCLES_PER_CORRECT = 10; 	// once following a line, number of cycles before correcting
-constexpr int LINES_PER_CORRECT = 2;
+constexpr int LINES_PER_CORRECT = 1;	// how many lines to cross before correcting; 0 is every line
 
-// constexpr int OFFSET_GAIN = 2;
-// constexpr float OFFSET_LINE_CORRECT = 1.0;	// how much to correct by when veering off line
-
+// correct to line directions
 constexpr int DIR_UP = 0;
 constexpr int DIR_LEFT = -90;
 constexpr int DIR_RIGHT = 90;
 constexpr int DIR_BACK = 180;
+
+
+// correction
+constexpr int CORRECT_SPEED = 10;			// one wheel travels at 0 and the other 2*CORRECT_SPEED
+constexpr byte INTERSECTION_TOO_CLOSE = 30;	// allowed range [30,170] for x and y for a correct
+constexpr int DISTANCE_PER_CORRECT = 100;	// correcting theta by aligning to a line
 
 }

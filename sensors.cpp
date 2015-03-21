@@ -7,46 +7,9 @@ namespace robot {
 // correct position using center sensor; assumes readings are up to date
 void line_detect() {
 	// don't line correct when turning in place
-	if (!on || layers[LAYER_TURN].active) return;
+	if (layers[LAYER_TURN].active) return;
 
 	bool online = on_line(CENTER);
-
-	// just deviated from a line that the robot was following
-	if (deviate_from_line) {
-		if (online || on_line(LEFT) || on_line(RIGHT)) {
-			cycles_on_line = 0;
-			deviate_from_line = false;
-			// no more correction
-			if (online) return;
-			// total distance accumulated while veering off course
-			float deviate_distance = tot_distance - pre_deviate_distance;
-			float deviate_theta = atan2(SIDE_SENSOR_DISTANCE, deviate_distance);
-
-			// veered on right = 1; veered on left = -1
-			// distances to correct for relative to line just left
-			float perpendicular_correct = SIDE_SENSOR_DISTANCE * cos(deviate_theta);
-			float parallel_correct = SIDE_SENSOR_DISTANCE * sin(deviate_theta);
-			// veering on the right
-			if (on_line(LEFT)) {
-				theta += deviate_theta; 
-				// correct for position
-				if 		(theta < -HALFPI) 	{y -= perpendicular_correct; x += parallel_correct;}
-				else if (theta < 0) 		{x += perpendicular_correct; y += parallel_correct;}
-				else if (theta < HALFPI) 	{y += perpendicular_correct; x -= parallel_correct;}
-				else if (theta < PI) 		{x -= perpendicular_correct; y -= parallel_correct;}
-				Serial.println("DR");
-			}
-			else if (on_line(RIGHT)) {
-				theta -= deviate_theta;
-				if 		(theta < -HALFPI) 	{x -= perpendicular_correct; y += parallel_correct;}
-				else if (theta < 0) 		{y -= perpendicular_correct; x -= parallel_correct;}
-				else if (theta < HALFPI) 	{x += perpendicular_correct; y -= parallel_correct;}
-				else if (theta < PI) 		{y -= perpendicular_correct; x += parallel_correct;}
-				Serial.println("DL");
-			}
-		}
-		return;	// skip the usual line correct
-	}
 
 	if (online) {
 		++cycles_on_line;
@@ -69,52 +32,12 @@ void line_detect() {
 				return;
 			}
 		}
-		// following a line, correct both theta and the horizontal position
-		if (cycles_on_line > CYCLES_FOLLOWING_LINE && 
-			(cycles_on_line - CYCLES_CROSSING_LINE) % CYCLES_PER_CORRECT == 0) {
-			// correct to grid using the other 2 sensors
-			side_correct |= on_line(LEFT);			// 0001 or 0000 binary
-			side_correct |= on_line(RIGHT) << 1;	// 0010 or 0000 in binary
-			if (side_correct & B1 == B1) side_correct |= !on_line(LEFT) << 2;		// 0100 or 0000
-			if (side_correct & B10 == B10) side_correct |= !on_line(RIGHT) << 3;	// 1000 or 0000
-			// left and right have activated and one of them passed
-			if (side_correct == B1011 || side_correct == B0111) {		
-				correct_to_grid();
-				side_correct = 0;
-			}
 
-			correct_to_line();
-			Serial.println('F');
-		}
 	}
 	else {
 		// false positive, not on line for enough cycles
 		if (cycles_on_line < CYCLES_CROSSING_LINE && cycles_on_line >= 0) ;
-		// was following line, just veered off course
-		else if (cycles_on_line > CYCLES_FOLLOWING_LINE || cycles_on_line < 0) {
-			// first time off line
-			if (cycles_on_line > 0) {cycles_on_line = 0; pre_deviate_distance = tot_distance;}
-			cycles_on_line -= 2;
-
-			if (cycles_on_line < -CYCLES_DEVIATE_LINE) { deviate_from_line = true; Serial.println("LL");}
-			// int approx_heading = theta * RADS;	// degrees between [-180,180]
-			// int offset = approx_heading % 90;	// offset from a 90 degree turn
-			// // amplify the offset
-			// theta = (approx_heading + OFFSET_GAIN*offset) * DEGS;
-			
-			// // force heading to be modulo 90 to give direction
-			// approx_heading -= offset;
-
-			// // account for veering off line by line width
-			// if (0 < approx_heading <= 45        || 135 < approx_heading <= 180) y += LINE_WIDTH;
-			// else if (45 < approx_heading <= 90  || -90 < approx_heading <= -45) x += LINE_WIDTH;
-			// else if (90 < approx_heading <= 135 || -135 < approx_heading <= -90) x -= LINE_WIDTH;
-			// else if (-45 < approx_heading <= 0  || -180 < approx_heading <= -135) y -= LINE_WIDTH;
-
-			
-			return;	// skip reset to 0
-		}
-		else if (counted_lines >= LINES_PER_CORRECT) {
+		else if (counted_lines >= LINES_PER_CORRECT || cycles_on_line > CYCLES_FOLLOWING_LINE) {
 			counted_lines = 0;
 			// correct whichever one is closer to 0 or 200 
 			correct_to_grid();
@@ -133,6 +56,7 @@ bool on_line(byte pin) {
 	return readings[pin] > thresholds[pin];
 }
 
+// teleport to the nearest line, holding the farther away position value constant
 void correct_to_grid() {
 	// -150 % 200 = -150
 	int offset_x = abs((int)x) % GRID_WIDTH;
@@ -162,15 +86,20 @@ void correct_to_grid() {
 	}
 }
 
-void correct_to_line() {
+// round angle to multiples of 90
+int square_heading() {
 	int approx_heading = theta * RADS;	// degrees between [-180,180]
 	int offset = approx_heading % 90;	// offset from a 90 degree turn
 	// force heading to be modulo 90 to give direction
 	approx_heading -= offset;
 	// offset large enough to consider correcting
-	if (abs(offset - 90) > 2 * THETA_TOLERANCE * RADS) {
-		theta = approx_heading * DEGS;
-	}
+	theta = approx_heading * DEGS;
+	return approx_heading;
+}
+
+// while following a line, correct angle and heading
+void correct_to_line() {
+	int approx_heading = square_heading();
 
 	int offset_x = abs((int)x) % GRID_WIDTH;
 	int offset_y = abs((int)y) % GRID_WIDTH;
@@ -228,9 +157,6 @@ void calibrate() {
     // set threshold to be average (anything below is dark, anything above is bright)
     for (byte pin = 0; pin < SENSOR_MAX; ++pin) 
         thresholds[pin] = (lows[pin] + highs[pin]) / 2;
-
-    digitalWrite(indicators[CENTER], HIGH);
-
 }
 
 }

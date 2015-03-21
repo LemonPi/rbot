@@ -64,7 +64,9 @@ extern bool deviate_from_line;
 extern float pre_deviate_distance;
 extern byte side_correct;
 
-extern bool drive, on;
+extern float last_correct_distance;
+
+extern bool drive, paused, on;
 
 // methods
 void tick_left();
@@ -91,13 +93,16 @@ void hard_turn();
 void avoid_boundary();
 
 
+
 // decide which is the highest active layer to pass to motor control
 void arbitrate();
 void motor_control(byte layer);
 
 
+// user insertable behaviour
 void user_behaviours();
 void user_waypoint();
+void user_correct();
 
 
 
@@ -106,6 +111,8 @@ void initialize_robot(byte c1_l, byte c2_l, byte outpin_l, byte c1_r, byte c2_r,
 
 void start();
 void stop();
+void hard_break();
+void resume_drive();
 
 int get_active_layer();
 
@@ -125,7 +132,7 @@ void calibrate();
 void indicate_sensors();
 void correct_to_grid();
 void correct_to_line();
-
+int square_heading();
 
 
 // retrieve information from the robot

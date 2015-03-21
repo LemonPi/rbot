@@ -72,8 +72,8 @@ void hard_turn() {
 		if (turn.angle < 0) turn.angle = -TOP_SPEED;
 		else turn.angle = TOP_SPEED;
 	}
-
 }
+
 
 // get to a target waypoint by 
 // resets target_x, target_y when arrived
@@ -89,15 +89,13 @@ void navigate() {
 			abs(boundaries[active_boundary].theta - heading_error) > 0.3)) &&
 		target_distance > TARGET_IMMEDIATE &&
 		!layers[LAYER_TURN].active &&	// not already turning 
+		drive == AUTOMATIC &&
 		abs(heading_error) > CAN_TURN_IN_PLACE) { 	// need large enough of a turn)
 
 		// push temporary targets (stationary, but turning)
 		add_target(x, y, heading_error + theta, true);
 		layers[LAYER_TURN].active = true;
 
-		// update target_distance to not be 0
-		// target_distance = TURNING_IN_PLACE;
-		// Serial.println(active_boundary);
 		Serial.print("t ");
 		Serial.println(heading_error + theta);
 		
