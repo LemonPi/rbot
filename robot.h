@@ -17,6 +17,7 @@ struct Boundary {
 // each target has x and y coordinates in addition to optional theta
 struct Target {
 	double x, y, theta;
+	byte type;
 };
 
 // 2 wheel differentially driven robot
@@ -118,7 +119,7 @@ int get_active_layer();
 void set_coordinate(double tx, double ty, double td = 0.0);
 void set_drive(bool mode);
 
-int add_target(double tx, double ty, double td = ANY_THETA, bool rad = false);
+int add_target(double tx, double ty, double td = ANY_THETA, byte type = TARGET_NAV, bool rad = false);
 int add_boundary(double bx, double by, double radius = 0);	// by default a point
 int add_sensor(byte sensor_pin, byte indicator_pin = -1);	// -1 means no indicator associated with sensor
 

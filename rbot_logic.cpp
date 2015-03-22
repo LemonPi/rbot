@@ -5,7 +5,6 @@
 namespace robot {
 
 byte ball_status = BALL_LESS;
-bool getting_ball = false;
 float get_initial_distance;
 Adafruit_TiCoServo gate;
 
@@ -17,8 +16,8 @@ void user_behaviours() {
 
 // called after arriving
 void user_waypoint() {
-	// arrived at a hopper (getting ball at cur_target) 
-	if (getting_ball) {
+	// previous target was to get the ball 
+	if (targets[target+1].type == TARGET_GET) {
 		layers[LAYER_GET].active = true;
 		// starting point of retrieving the robot
 		get_initial_distance = tot_distance;
@@ -39,14 +38,14 @@ void user_waypoint() {
 		}
 		// go to that hopper if one exists
 		if (min_distance != 10000) {
-			add_target(min_target.x, min_target.y, min_target.theta, true);
-
 			// get the ball when you get there
-			getting_ball = true;
+			add_target(min_target.x, min_target.y, min_target.theta, TARGET_GET, true);
+
+			Serial.println('b');
 		}
 	}
 	// put ball away if has ball and at rendezvous point
-	else if (ball_status == SECURED_BALL && sqrt(sq(x - RENDEZVOUS_X) + sq(y - RENDEZVOUS_Y)) < RENDEZVOUS_CLOSE) {
+	else if (targets[target+1].type == TARGET_PUT && ball_status == SECURED_BALL) {
 		layers[LAYER_PUT].active = true;
 	}
 }

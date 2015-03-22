@@ -25,7 +25,7 @@ void line_detect() {
 			if (abs(offset - 90) < THETA_TOLERANCE * RADS) {
 				turn_to -= offset;
 				// turn_to is now square
-				add_target(x, y, turn_to);
+				add_target(x, y, turn_to, TARGET_TURN);
 				layers[LAYER_TURN].active = true;
 				// skip line correction
 				Serial.println("CL");

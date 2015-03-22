@@ -31,7 +31,11 @@ constexpr byte BOUNDARY_MAX = 14;
 constexpr byte TARGET_MAX = 10;
 constexpr byte SENSOR_MAX = 4;
 
-
+// target types
+constexpr byte TARGET_NAV = 0;
+constexpr byte TARGET_TURN = 1;
+constexpr byte TARGET_GET = 2;
+constexpr byte TARGET_PUT = 3;
 
 // sensor indices
 constexpr byte CENTER = 0;		// center sensor is sensor 0
@@ -71,7 +75,7 @@ constexpr float THETA_TOLERANCE = 0.03;	// around 3 degree turning
 constexpr int ANY_THETA = 9000;	// if no target is set
 
 constexpr int TURNING_IN_PLACE = 8000;
-constexpr float CAN_TURN_IN_PLACE = 0.8; // minimum angle to activate turning in place
+constexpr float CAN_TURN_IN_PLACE = 0.5; // minimum angle to activate turning in place
 
 
 
@@ -104,7 +108,7 @@ constexpr float HALF_LINE_WIDTH = 2.5;
 constexpr int GRID_WIDTH = 200;			// grid spaced about 200mm apart
 constexpr int CYCLES_CROSSING_LINE = 2; 	// cycles on line for false positive to fail
 constexpr int CYCLES_FOLLOWING_LINE = 100;
-constexpr int LINES_PER_CORRECT = 1;	// how many lines to cross before correcting; 0 is every line
+constexpr int LINES_PER_CORRECT = 2;	// how many lines to cross before correcting; 0 is every line
 
 // correct to line directions
 constexpr int DIR_UP = 0;
@@ -128,6 +132,6 @@ constexpr int GET_SPEED = 0.5*TOP_SPEED;
 // ball statuses
 constexpr byte BALL_LESS = 0;
 constexpr byte JUST_GOT_BALL = 1;
-constexpr byte SECURED_BALL = 5;	// cycles of gate closing
+constexpr byte SECURED_BALL = 10;	// cycles of gate closing
 
 }

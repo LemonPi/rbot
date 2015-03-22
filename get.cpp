@@ -29,14 +29,12 @@ void get_ball() {
 	// after securing ball, drive backwards for the same amount of distance
 	else if (ball_status == SECURED_BALL) {
 		if (paused) resume_drive();
-		if (tot_distance - get_initial_distance < 2*GET_DISTANCE) get.speed = -GET_SPEED;
+		if (tot_distance - get_initial_distance < 3.5*GET_DISTANCE) get.speed = -GET_SPEED;
 		// after getting ball, return to rendezvous point
 		else {
-			getting_ball = false;
 			layers[LAYER_GET].active = false;
-			add_target(RENDEZVOUS_X, RENDEZVOUS_Y, 0, true);
+			add_target(RENDEZVOUS_X, RENDEZVOUS_Y, 0, TARGET_PUT, true);
 			close_hoppers();
-			
 		}
 	}
 	// in the middle of closing the gate, wait a couple cycles

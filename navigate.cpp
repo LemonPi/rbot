@@ -6,7 +6,7 @@
 namespace robot {
 
 // set target from origin (last reset point)
-int add_target(double tx, double ty, double td, bool rad) {
+int add_target(double tx, double ty, double td, byte type, bool rad) {
 	if (target + 1 >= TARGET_MAX) return -1;
 
 	if (td != ANY_THETA) {
@@ -21,6 +21,7 @@ int add_target(double tx, double ty, double td, bool rad) {
 	targets[target].x = tx;
 	targets[target].y = ty;
 	targets[target].theta = td;
+	targets[target].type = type;
 	layers[LAYER_NAV].active = true;
 	return target;
 }
@@ -29,9 +30,7 @@ int add_target(double tx, double ty, double td, bool rad) {
 // check if turn has been completed
 void hard_turn() {
 	Layer& turn = layers[LAYER_TURN];
-	
-	// if (turn.active) Serial.println('t');
-	// else Serial.println('n');	
+
 	turn.speed = 0;				// turn in place, no translational velocity
 	if (!turn.active || target == NONE_ACTIVE) { turn.angle = 0; return; }
 
@@ -65,8 +64,8 @@ void hard_turn() {
 // resets target_x, target_y when arrived
 void navigate() {
 	Layer& nav = layers[LAYER_NAV];
-	if (!nav.active) return;
 	locate_target();	// calculate target_distance and target_theta
+	if (!nav.active || layers[LAYER_TURN].active) return;
 
 	// turn in place
 	// not too close to active boundary
@@ -74,13 +73,14 @@ void navigate() {
 			(boundaries[active_boundary].distance > target_distance &&	// target is closer than the boundary
 			abs(boundaries[active_boundary].theta - heading_error) > 0.3)) &&
 		target_distance > TARGET_IMMEDIATE &&
-		!layers[LAYER_TURN].active &&	// not already turning 
+		// !layers[LAYER_TURN].active &&	// not already turning 
 		drive == AUTOMATIC &&
 		abs(heading_error) > CAN_TURN_IN_PLACE) { 	// need large enough of a turn)
 
 		// push temporary targets (stationary, but turning)
-		add_target(x, y, heading_error + theta, true);
+		add_target(x, y, heading_error + theta, TARGET_TURN, true);
 		layers[LAYER_TURN].active = true;
+		nav.active = false;
 
 		Serial.print("t ");
 		Serial.println(heading_error + theta);
@@ -106,7 +106,6 @@ void navigate() {
 	}
 	// still seeking target
 	else {
-		nav.active = true;
 		// steer heading toward target
 		if (abs(heading_error) < THETA_TOLERANCE) nav.angle = 0;
 		else {

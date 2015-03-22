@@ -19,6 +19,9 @@ void correct_theta() {
 
 // control the correction layer
 void user_correct() {
+	// don't try to correct while running for your life
+	if (layers[LAYER_BOUND].active || layers[LAYER_TURN].active || layers[LAYER_GET].active || layers[LAYER_PUT].active) return;
+	
 	if (layers[LAYER_COR].active) {
 
 		if ((on_lines[LEFT] && on_lines[CENTER]) ||

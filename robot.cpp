@@ -172,7 +172,6 @@ bool is_intersection(int x, int y) {
 }
 
 void start() {
-	Serial.println(theta*RADS);
 	on = true;
 	tick_l = tick_r = 0;
 	cycles_on_line = 0;
@@ -253,16 +252,19 @@ void odometry() {
 	tick_r = 0;
 
 	// update internal position
-	// distances in mm
+	// displacements in mm
 	if (drive == MANUAL) {dir_l = dir_r = FORWARD;}
-	double distance_l = dir_l * (double)instant_tick_l * MM_PER_TICK_L;
-	double distance_r = dir_r * (double)instant_tick_r * MM_PER_TICK_R;
-	double distance = (distance_l + distance_r) * 0.5;
-	tot_distance += distance;
+	double displacement_l = dir_l * (double)instant_tick_l * MM_PER_TICK_L;
+	double displacement_r = dir_r * (double)instant_tick_r * MM_PER_TICK_R;
+	double displacement = (displacement_l + displacement_r) * 0.5;
 
-	theta += atan2(distance_l - distance_r, BASE_WIDTH);
-	x += distance * cos(theta);
-	y += distance * sin(theta);
+	// total distance is a scalar
+	if (displacement > 0) tot_distance += displacement;
+	else tot_distance -= displacement;
+
+	theta += atan2(displacement_l - displacement_r, BASE_WIDTH);
+	x += displacement * cos(theta);
+	y += displacement * sin(theta);
 	// keep theta within [-180,180]
 	if (theta > PI) theta -= TWOPI;
 	else if (theta < -PI) theta += TWOPI;
