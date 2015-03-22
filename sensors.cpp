@@ -88,8 +88,6 @@ int square_heading() {
 	int offset = approx_heading % 90;	// offset from a 90 degree turn
 	// force heading to be modulo 90 to give direction
 	approx_heading -= offset;
-	// offset large enough to consider correcting
-	theta = approx_heading * DEGS;
 	return approx_heading;
 }
 
