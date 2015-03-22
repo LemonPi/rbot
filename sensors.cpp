@@ -9,7 +9,7 @@ void line_detect() {
 	// don't line correct when turning in place
 	if (layers[LAYER_TURN].active) return;
 
-	bool online = on_line(CENTER);
+	bool online = on_lines[CENTER];
 
 	if (online) {
 		++cycles_on_line;
@@ -50,10 +50,6 @@ void line_detect() {
 		}
 		cycles_on_line = 0;
 	}
-}
-
-bool on_line(byte pin) {
-	return readings[pin] > thresholds[pin];
 }
 
 // teleport to the nearest line, holding the farther away position value constant
@@ -127,8 +123,8 @@ int add_sensor(byte sensor_pin, byte indicator_pin) {
 // turn on an indicator (assuming digital) if sensor detects below threshold
 void indicate_sensors() {
     for (byte i = 0; i < SENSOR_MAX; ++i) {
-        readings[i] = analogRead(sensors[i]);
-        if (on_line(i)) digitalWrite(indicators[i],HIGH);
+        on_lines[i] = analogRead(sensors[i]) > thresholds[i];
+        if (on_lines[i]) digitalWrite(indicators[i],HIGH);
         else digitalWrite(indicators[i],LOW);
  	}    
 }
@@ -142,6 +138,7 @@ void calibrate() {
 
     int lows[SENSOR_MAX];
     int highs[SENSOR_MAX] = {0};
+    int readings[SENSOR_MAX];
     for (byte pin = 0; pin < SENSOR_MAX; ++pin) lows[pin] = 1023;
 
     unsigned long calibrate_start = millis();
@@ -156,7 +153,7 @@ void calibrate() {
 
     // set threshold to be average (anything below is dark, anything above is bright)
     for (byte pin = 0; pin < SENSOR_MAX; ++pin) 
-        thresholds[pin] = (lows[pin] + highs[pin]) / 2;
+        thresholds[pin] = (lows[pin] + highs[pin]) / THRESHOLD_TOLERANCE;
 }
 
 }

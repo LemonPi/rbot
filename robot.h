@@ -56,13 +56,12 @@ extern unsigned long time_prev_sensors;
 extern int sensor_num;
 extern byte sensors[SENSOR_MAX];
 extern byte indicators[SENSOR_MAX];
-extern int readings[SENSOR_MAX];
+extern bool on_lines[SENSOR_MAX];
 extern int thresholds[SENSOR_MAX];
 extern int cycles_on_line, counted_lines;
 extern bool square_turn;
-extern bool deviate_from_line;
-extern float pre_deviate_distance;
 extern byte side_correct;
+extern byte hit_first;
 
 extern float last_correct_distance;
 

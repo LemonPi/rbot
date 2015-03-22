@@ -4,12 +4,45 @@
 
 namespace robot {
 
+byte hoppers[HOPPER_NUM] = {HOPPER1, HOPPER2, HOPPER3, HOPPER4};
+
 const int x_lookup[4] = {1230,1010,790,570};
 const int y_lookup[7] = {420,550,670,800,930,1050,1170};
 
-// get ball behaviour
+// get ball behaviour, should only occur at hopper approach
 void get_ball() {
-	
+	Layer& get = layers[LAYER_GET];
+	if (!get.active) return;
+
+	// either going forward or backward, always no angle
+	get.angle = 0;
+	// go forward until ball is detected or arbitrary additional distance travelled
+	if (ball_status == BALL_LESS) {
+		if (tot_distance - get_initial_distance < GET_DISTANCE) get.speed = GET_SPEED;
+		else {
+			// then close servo gate
+			close_gate();
+			hard_break();
+			ball_status = JUST_GOT_BALL;
+		}
+	}
+	// after securing ball, drive backwards for the same amount of distance
+	else if (ball_status == SECURED_BALL) {
+		if (paused) resume_drive();
+		if (tot_distance - get_initial_distance < 2*GET_DISTANCE) get.speed = -GET_SPEED;
+		// after getting ball, return to rendezvous point
+		else {
+			getting_ball = false;
+			layers[LAYER_GET].active = false;
+			add_target(RENDEZVOUS_X, RENDEZVOUS_Y, 0, true);
+			close_hoppers();
+			
+		}
+	}
+	// in the middle of closing the gate, wait a couple cycles
+	else {
+		++ball_status;
+	}
 }
 
 // hopper is defined by 3 pillar index
@@ -42,7 +75,11 @@ Target approach_hopper(byte hopper) {
 	else {
 		// find furthest away pillar
 		for (int i = 1; i < 4; ++i) {
-			double dist = boundaries[hopper-i].distance;
+			double dist; 
+			// avoid boundary hasn't updated yet
+			if (boundaries[hopper-i].distance == 0) dist = sqrt(sq(boundaries[hopper-i].x - x) + sq(boundaries[hopper-i].y - y));
+			else dist = boundaries[hopper-i].distance;
+
 			if (dist > max_dist) {max_dist = dist; max_index = hopper-i;}
 		}
 

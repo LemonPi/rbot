@@ -41,13 +41,12 @@ unsigned long time_prev_sensors;
 int sensor_num;
 byte sensors[SENSOR_MAX];
 byte indicators[SENSOR_MAX];
-int readings[SENSOR_MAX];
+bool on_lines[SENSOR_MAX];
 int thresholds[SENSOR_MAX];
 int cycles_on_line, counted_lines;
 bool square_turn;
-bool deviate_from_line;
-float pre_deviate_distance;
 byte side_correct;
+byte hit_first;
 
 float last_correct_distance;
 
@@ -145,7 +144,6 @@ void initialize_robot(byte c1_l, byte c2_l, byte outpin_l, byte c1_r, byte c2_r,
 	cycles_on_line = 0;	// counter for continuous cycles on line
 	counted_lines = 0;
 	square_turn = false;
-	deviate_from_line = false;
 	side_correct = 0;
 
 	drive = AUTOMATIC;
@@ -182,6 +180,7 @@ void start() {
 	last_correct_distance = 0;
 	// deviate_from_line = false;
 	if (target != NONE_ACTIVE) layers[LAYER_NAV].active = true;
+	else waypoint();
 	resume_drive();
 }
 

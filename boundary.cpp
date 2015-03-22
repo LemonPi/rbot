@@ -49,6 +49,9 @@ void avoid_boundary() {
 		else boundary.threat = 0;
 	}
 
+	// don't avoid boundary if you're turning in place or close to target
+	if (layers[LAYER_TURN].active || target_distance < TARGET_IMMEDIATE) return;
+	
 	// take care of the case when all boundaries are inactive
 	double max_threat = 0;
 
@@ -77,8 +80,6 @@ void avoid_boundary() {
 		}
 	}	
 
-	// if (bound.active) Serial.println('a');
-	// else Serial.println('n');
 }
 
 }

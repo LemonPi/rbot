@@ -37,25 +37,11 @@ void hard_turn() {
 
 	double to_turn = targets[target].theta - theta;
 	// would be faster to turn in the opposite direction 
-	if (to_turn > PI) to_turn = TWOPI - to_turn;
-	else if (to_turn < -PI) to_turn = TWOPI + to_turn;
+	if (to_turn > PI) to_turn -= TWOPI;
+	else if (to_turn < -PI) to_turn += TWOPI;
 
-
-	// square turns can rely on lines to align angles, center has to be on a line
-	if (sensor_num == SENSOR_MAX && square_turn && on_line(CENTER)) {
-		// completed turn when sides are also on line
-		Serial.print("tt ");
-		Serial.println(abs(to_turn));
-		if (on_line(LEFT) && on_line(RIGHT) && abs(to_turn) < THETA_TOLERANCE) {
-			// fix theta to be the closest HALFPI / theta (set by target_theta)
-			theta = targets[target].theta;
-			Serial.println("st");
-			waypoint();
-			return;
-		}
-	}
 	// turn until theta ~= target_theta
-	else if (abs(to_turn) < THETA_TOLERANCE) {
+	if (abs(to_turn) < THETA_TOLERANCE) {
 		Serial.println("dt");
 		waypoint();
 		return;

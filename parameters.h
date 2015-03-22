@@ -40,6 +40,7 @@ constexpr byte RIGHT = 2;
 constexpr byte BALL = 3;
 constexpr float SIDE_SENSOR_DISTANCE = 16;
 
+
 // PID speed control
 constexpr int FORWARD = 1;
 constexpr int BACKWARD = -1;
@@ -85,6 +86,7 @@ constexpr int BOUND_TURN = 20;		// how hard to turn away from obstacle; adjustab
 constexpr int NONE_ACTIVE = -1;
 
 // hopper indices, 3-hoppers are loaded first
+constexpr byte HOPPER_NUM = 4;
 constexpr byte HOPPER1 = 3;
 constexpr byte HOPPER2 = 7;
 constexpr byte HOPPER3 = 10;
@@ -96,6 +98,7 @@ constexpr int COLONY_RADIUS = 150;
 
 // line detecting sensors
 constexpr int CALLIBRATION_TIME = 5000;	// 5s
+constexpr int THRESHOLD_TOLERANCE = 3;
 constexpr int LINE_WIDTH = 10; 			// about 1cm
 constexpr float HALF_LINE_WIDTH = 2.5;
 constexpr int GRID_WIDTH = 200;			// grid spaced about 200mm apart
@@ -112,7 +115,19 @@ constexpr int DIR_BACK = 180;
 
 // correction
 constexpr int CORRECT_SPEED = 10;			// one wheel travels at 0 and the other 2*CORRECT_SPEED
-constexpr byte INTERSECTION_TOO_CLOSE = 30;	// allowed range [30,170] for x and y for a correct
-constexpr int DISTANCE_PER_CORRECT = 100;	// correcting theta by aligning to a line
+constexpr byte INTERSECTION_TOO_CLOSE = 50;	// allowed range [50,150] for x and y for a correct
+constexpr int DISTANCE_PER_CORRECT = 500;	// correcting theta by aligning to a line
+
+
+// getting the ball
+constexpr int RENDEZVOUS_X = 1400;
+constexpr int RENDEZVOUS_Y = 800;
+constexpr int RENDEZVOUS_CLOSE = 40;	// within 4cm of rendezvous
+constexpr float GET_DISTANCE = 50;
+constexpr int GET_SPEED = 0.5*TOP_SPEED;
+// ball statuses
+constexpr byte BALL_LESS = 0;
+constexpr byte JUST_GOT_BALL = 1;
+constexpr byte SECURED_BALL = 5;	// cycles of gate closing
 
 }
