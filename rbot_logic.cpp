@@ -16,13 +16,14 @@ void user_behaviours() {
 
 // called after arriving
 void user_waypoint() {
-	// previous target was to get the ball 
+	// previous target was to get the ball (target+1 was immediately previous target)
 	if (targets[target+1].type == TARGET_GET) {
 		layers[LAYER_GET].active = true;
 		// starting point of retrieving the robot
 		get_initial_distance = tot_distance;
 	}
-	else if (ball_status == BALL_LESS) {
+	// don't have ball and the current target isn't to get to a ball
+	else if (ball_status == BALL_LESS && targets[target].type != TARGET_GET) {
 		// find closest hopper to retrieve
 		float min_distance = 10000;
 		float distance;

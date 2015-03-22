@@ -32,6 +32,8 @@ void get_ball() {
 		if (tot_distance - get_initial_distance < 3.5*GET_DISTANCE) get.speed = -GET_SPEED;
 		// after getting ball, return to rendezvous point
 		else {
+			// set up crossed lines to be corrected on the next line cross
+			counted_lines = LINES_PER_CORRECT;
 			layers[LAYER_GET].active = false;
 			add_target(RENDEZVOUS_X, RENDEZVOUS_Y, 0, TARGET_PUT, true);
 			close_hoppers();

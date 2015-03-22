@@ -192,6 +192,7 @@ void hard_break() {
 	paused = true;
 	l.stop(); 
 	r.stop();
+	Serial.println('h');
 }
 void resume_drive() {
 	paused = false;

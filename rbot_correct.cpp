@@ -21,7 +21,7 @@ void correct_theta() {
 void user_correct() {
 	// don't try to correct while running for your life
 	if (layers[LAYER_BOUND].active || layers[LAYER_TURN].active || layers[LAYER_GET].active || layers[LAYER_PUT].active) return;
-	
+
 	if (layers[LAYER_COR].active) {
 
 		if ((on_lines[LEFT] && on_lines[CENTER]) ||
@@ -35,7 +35,7 @@ void user_correct() {
 			square_heading();
 			correct_to_grid();
 			counted_lines = 0;
-
+			if (paused) resume_drive();
 			last_correct_distance = tot_distance;
 			layers[LAYER_COR].active = false;
 
@@ -43,7 +43,7 @@ void user_correct() {
 		} 
 	}
 	// approaching from an angle, and have crossed enough lines; correct theta
-	else if ((on_lines[LEFT] || on_lines[RIGHT]) && (tot_distance - last_correct_distance) > DISTANCE_PER_CORRECT) {
+	else if (on_lines[CENTER] && (tot_distance - last_correct_distance) > DISTANCE_PER_CORRECT) {
 		byte offset_x = abs((int)x) % GRID_WIDTH;
 		byte offset_y = abs((int)y) % GRID_WIDTH;
 		// when only 1 position is close to a line but not both (meaning intersection)
