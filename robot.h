@@ -58,6 +58,7 @@ extern int sensor_num;
 extern byte sensors[SENSOR_MAX];
 extern byte indicators[SENSOR_MAX];
 extern byte on_lines;	// bit array, only 8 bits (sensors)
+extern byte prev_on_lines;
 extern int thresholds[SENSOR_MAX];
 
 
@@ -67,7 +68,10 @@ extern bool drive, paused, on;
 void tick_left();
 void tick_right();
 
+// previous cycle on line
+bool prev_on_line(byte pin);
 bool on_line(byte pin);
+
 bool is_intersection(int x, int y);
 // restrict values between low and high limits
 void clamp(int& parameter, int low, int high);

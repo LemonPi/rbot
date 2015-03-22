@@ -11,9 +11,9 @@ extern float get_initial_distance;
 extern byte hoppers[HOPPER_NUM];
 
 extern int cycles_on_line, counted_lines;
-extern byte hit_first;
 
-extern float last_correct_distance;
+extern int passive_status;
+extern float correct_initial_distance;
 
 
 void initialize_rbot(byte servo_pin);
@@ -33,10 +33,10 @@ void open_gate();
 
 // user correct
 // correct theta at lines
-void correct_theta();
-void line_detect();
-void correct_against_line();
+void passive_correct();
+void passive_position_correct();
 
+bool far_from_intersection(int xx, int yy);
 
 
 }

@@ -41,7 +41,7 @@ unsigned long time_prev_sensors;
 int sensor_num;
 byte sensors[SENSOR_MAX];
 byte indicators[SENSOR_MAX];
-byte on_lines;
+byte on_lines, prev_on_lines;
 int thresholds[SENSOR_MAX];
 
 

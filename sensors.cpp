@@ -40,8 +40,6 @@ int square_heading() {
 	int offset = approx_heading % 90;	// offset from a 90 degree turn
 	// force heading to be modulo 90 to give direction
 	approx_heading -= offset;
-	// offset large enough to consider correcting
-	theta = approx_heading * DEGS;
 	return approx_heading;
 }
 
@@ -57,12 +55,16 @@ int add_sensor(byte sensor_pin, byte indicator_pin) {
 	return sensor_num;
 }
 
+bool prev_on_line(byte pin) {
+	return prev_on_lines & pin;
+}
 bool on_line(byte pin) {
 	return on_lines & pin;
 }
 
 // turn on an indicator (assuming digital) if sensor detects below threshold
 void indicate_sensors() {
+	prev_on_lines = on_lines;
     for (byte i = 0; i < SENSOR_MAX; ++i) {
     	// clear ith bit or set ith bit
     	if (analogRead(sensors[i]) > thresholds[i]) {on_lines |= (1 << i); digitalWrite(indicators[i],HIGH);}

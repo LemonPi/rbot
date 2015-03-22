@@ -8,20 +8,20 @@ byte ball_status = BALL_LESS;
 float get_initial_distance;
 Adafruit_TiCoServo gate;
 int cycles_on_line, counted_lines;
-byte hit_first;
 
-float last_correct_distance;
+int passive_status;
+float correct_initial_distance;
 
 // called inside every go cycle
 void user_behaviours() {
-	correct_theta();
 	get_ball();
 }
 
 // control the correction layer
 void user_correct() {
-	line_detect();
-	correct_against_line();
+	if (layers[LAYER_TURN].active || layers[LAYER_BOUND].active) return;
+	passive_correct();
+	passive_position_correct();
 }
 
 // called after arriving
@@ -63,9 +63,9 @@ void user_waypoint() {
 
 
 void initialize_rbot(byte servo_pin) {
-	hit_first = CENTER;
 	cycles_on_line = 0;	// counter for continuous cycles on line
 	counted_lines = 0;
+	passive_status = PASSED_NONE;
 	gate.attach(servo_pin);
 	open_gate();
 }
@@ -73,7 +73,7 @@ void initialize_rbot(byte servo_pin) {
 void user_start() {
 	cycles_on_line = 0;
 	counted_lines = 0;
-	last_correct_distance = 0;
+	passive_status = PASSED_NONE;
 }
 
 }	// end namespace

@@ -14,14 +14,13 @@ constexpr bool MANUAL = false;
 constexpr bool AUTOMATIC = true;
 
 // subsumption layers
-constexpr byte LAYER_NUM = 7;
+constexpr byte LAYER_NUM = 6;
 constexpr byte LAYER_BOUND = 0; // highest priority
-constexpr byte LAYER_COR = 1;	
-constexpr byte LAYER_TURN = 2;
-constexpr byte LAYER_NAV = 3;
-constexpr byte LAYER_GET = 4;	// retrieve from hopper
-constexpr byte LAYER_PUT = 5;	// deposit ball to rendevous
-constexpr byte LAYER_WAIT = 6;
+constexpr byte LAYER_TURN = 1;
+constexpr byte LAYER_NAV = 2;
+constexpr byte LAYER_GET = 3;	// retrieve from hopper
+constexpr byte LAYER_PUT = 4;	// deposit ball to rendevous
+constexpr byte LAYER_WAIT = 5;
 
 constexpr int CYCLE_TIME = 50; 	// in ms
 constexpr int SENSOR_TIME = 10;  // in ms, 5x faster than navigation cycles
@@ -42,7 +41,7 @@ constexpr byte CENTER = B0001;		// center sensor is sensor 0
 constexpr byte LEFT = 	B0010;
 constexpr byte RIGHT = 	B0100;
 constexpr byte BALL = 	B1000;
-constexpr float SIDE_SENSOR_DISTANCE = 16;
+constexpr float SIDE_SENSOR_DISTANCE = 20;
 
 
 // PID speed control
@@ -122,6 +121,15 @@ constexpr int CORRECT_SPEED = 10;			// one wheel travels at 0 and the other 2*CO
 constexpr byte INTERSECTION_TOO_CLOSE = 50;	// allowed range [50,150] for x and y for a correct
 constexpr int DISTANCE_PER_CORRECT = 500;	// correcting theta by aligning to a line
 constexpr int DISTANCE_PER_PASSIVE_CORRECT = 500;	// correct theta by the distance before all 3 crosses the line
+
+constexpr int PASSED_NONE = 0;
+constexpr int PASSED_LEFT = LEFT << 3;
+constexpr int PASSED_RIGHT = RIGHT << 3;
+constexpr int PASSED_LEFT_RIGHT = B010101;	// left passed, right active, center active
+constexpr int PASSED_RIGHT_LEFT = B100011;	// right passed, left active, center active
+
+
+
 
 // getting the ball
 constexpr int RENDEZVOUS_X = 1400;

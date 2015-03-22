@@ -10,11 +10,6 @@ int add_target(double tx, double ty, double td, byte type, bool rad) {
 	if (target + 1 >= TARGET_MAX) return -1;
 
 	if (td != ANY_THETA) {
-		// square turns at intersections, so in hard turn can use on-line to tell if turned enough 
-		// if ((int)td % 90 == 0 && 
-		// 	((int)tx % 200 == 0 || (int)ty % 200 == 0)) 
-		// 	square_turn = true;
-
 		if (!rad) td *= DEGS;
 	}
 	++target;
