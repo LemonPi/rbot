@@ -57,14 +57,9 @@ extern unsigned long time_prev_sensors;
 extern int sensor_num;
 extern byte sensors[SENSOR_MAX];
 extern byte indicators[SENSOR_MAX];
-extern bool on_lines[SENSOR_MAX];
+extern byte on_lines;	// bit array, only 8 bits (sensors)
 extern int thresholds[SENSOR_MAX];
-extern int cycles_on_line, counted_lines;
-extern bool square_turn;
-extern byte side_correct;
-extern byte hit_first;
 
-extern float last_correct_distance;
 
 extern bool drive, paused, on;
 
@@ -79,8 +74,6 @@ void clamp(int& parameter, int low, int high);
 void pid_control(int tl, int tr);
 // update internal position and call speed control
 void odometry();
-// correct proprioception: position with line detection
-void line_detect();
 // target acquisition
 void locate_target();
 // navigating to target
@@ -103,7 +96,7 @@ void motor_control(byte layer);
 void user_behaviours();
 void user_waypoint();
 void user_correct();
-
+void user_start();
 
 
 // 3 pins each for hbridges, by default off and going forward
@@ -131,7 +124,6 @@ bool correct(); // correct lines to be called in a loop
 void calibrate();
 void indicate_sensors();
 void correct_to_grid();
-void correct_to_line();
 int square_heading();
 
 

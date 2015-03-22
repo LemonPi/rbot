@@ -35,7 +35,7 @@ void get_ball() {
 			// set up crossed lines to be corrected on the next line cross
 			counted_lines = LINES_PER_CORRECT;
 			layers[LAYER_GET].active = false;
-			add_target(RENDEZVOUS_X, RENDEZVOUS_Y, 0, TARGET_PUT, true);
+			add_target(RENDEZVOUS_X, RENDEZVOUS_Y, 0, TARGET_PUT);
 			close_hoppers();
 		}
 	}

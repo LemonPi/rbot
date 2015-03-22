@@ -41,14 +41,9 @@ unsigned long time_prev_sensors;
 int sensor_num;
 byte sensors[SENSOR_MAX];
 byte indicators[SENSOR_MAX];
-bool on_lines[SENSOR_MAX];
+byte on_lines;
 int thresholds[SENSOR_MAX];
-int cycles_on_line, counted_lines;
-bool square_turn;
-byte side_correct;
-byte hit_first;
 
-float last_correct_distance;
 
 bool drive, on, paused;
 
@@ -108,8 +103,6 @@ bool correct() {
 
 	if (!on) return false;
 	// corrects internal positioning
-	line_detect();
-
 	user_correct();
 
 	time_prev_sensors = now;
@@ -141,10 +134,7 @@ void initialize_robot(byte c1_l, byte c2_l, byte outpin_l, byte c1_r, byte c2_r,
 	// line detection and other sensor related behaviours
 	time_prev_sensors = 0;
 	sensor_num = 0;
-	cycles_on_line = 0;	// counter for continuous cycles on line
-	counted_lines = 0;
-	square_turn = false;
-	side_correct = 0;
+
 
 	drive = AUTOMATIC;
 	on = paused = false; 
@@ -174,13 +164,10 @@ bool is_intersection(int x, int y) {
 void start() {
 	on = true;
 	tick_l = tick_r = 0;
-	cycles_on_line = 0;
-	counted_lines = 0;
-	last_correct_distance = 0;
-	// deviate_from_line = false;
 	if (target != NONE_ACTIVE) layers[LAYER_NAV].active = true;
 	else waypoint();
 	resume_drive();
+	user_start();
 }
 
 void stop() {

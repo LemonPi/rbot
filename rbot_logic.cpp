@@ -7,11 +7,21 @@ namespace robot {
 byte ball_status = BALL_LESS;
 float get_initial_distance;
 Adafruit_TiCoServo gate;
+int cycles_on_line, counted_lines;
+byte hit_first;
+
+float last_correct_distance;
 
 // called inside every go cycle
 void user_behaviours() {
 	correct_theta();
 	get_ball();
+}
+
+// control the correction layer
+void user_correct() {
+	line_detect();
+	correct_against_line();
 }
 
 // called after arriving
@@ -53,9 +63,17 @@ void user_waypoint() {
 
 
 void initialize_rbot(byte servo_pin) {
+	hit_first = CENTER;
+	cycles_on_line = 0;	// counter for continuous cycles on line
+	counted_lines = 0;
 	gate.attach(servo_pin);
 	open_gate();
 }
 
+void user_start() {
+	cycles_on_line = 0;
+	counted_lines = 0;
+	last_correct_distance = 0;
+}
 
 }	// end namespace

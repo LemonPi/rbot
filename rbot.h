@@ -10,6 +10,12 @@ extern Adafruit_TiCoServo gate;
 extern float get_initial_distance;
 extern byte hoppers[HOPPER_NUM];
 
+extern int cycles_on_line, counted_lines;
+extern byte hit_first;
+
+extern float last_correct_distance;
+
+
 void initialize_rbot(byte servo_pin);
 
 // get module
@@ -28,6 +34,9 @@ void open_gate();
 // user correct
 // correct theta at lines
 void correct_theta();
+void line_detect();
+void correct_against_line();
+
 
 
 }

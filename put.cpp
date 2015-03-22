@@ -3,6 +3,12 @@
 
 namespace robot {
 
+void put_ball() {
+	Layer& put = layers[LAYER_PUT];
+	if (!put.active) return;
+	stop();
+}
+
 void close_gate() {
 	gate.write(170);
 }

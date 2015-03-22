@@ -4,54 +4,6 @@
 namespace robot {
 
 
-// correct position using center sensor; assumes readings are up to date
-void line_detect() {
-	// don't line correct when turning in place
-	if (layers[LAYER_TURN].active) return;
-
-	bool online = on_lines[CENTER];
-
-	if (online) {
-		++cycles_on_line;
-		// activate line following if close enough to target and is on a line
-		if (cycles_on_line > CYCLES_CROSSING_LINE && 
-			target_distance < TARGET_CLOSE && target_distance > TARGET_IMMEDIATE &&
-			is_intersection((int)targets[target].x, (int)targets[target].y)) {
-			// square turn in place until facing target
-			int turn_to = (theta + heading_error) * RADS;
-			int offset = turn_to % 90;
-
-			// close enough to be making a hard turn
-			if (abs(offset - 90) < THETA_TOLERANCE * RADS) {
-				turn_to -= offset;
-				// turn_to is now square
-				add_target(x, y, turn_to, TARGET_TURN);
-				layers[LAYER_TURN].active = true;
-				// skip line correction
-				Serial.println("CL");
-				return;
-			}
-		}
-
-	}
-	else {
-		// false positive, not on line for enough cycles
-		if (cycles_on_line < CYCLES_CROSSING_LINE && cycles_on_line >= 0) ;
-		else if (counted_lines >= LINES_PER_CORRECT || cycles_on_line > CYCLES_FOLLOWING_LINE) {
-			counted_lines = 0;
-			// correct whichever one is closer to 0 or 200 
-			correct_to_grid();
-
-			Serial.println('C');
-		}
-		else {
-			++counted_lines;
-			Serial.println('L');
-		}
-		cycles_on_line = 0;
-	}
-}
-
 // teleport to the nearest line, holding the farther away position value constant
 void correct_to_grid() {
 	// -150 % 200 = -150
@@ -93,20 +45,6 @@ int square_heading() {
 	return approx_heading;
 }
 
-// while following a line, correct angle and heading
-void correct_to_line() {
-	int approx_heading = square_heading();
-
-	int offset_x = abs((int)x) % GRID_WIDTH;
-	int offset_y = abs((int)y) % GRID_WIDTH;
-	// correct the other x y based on approx heading
-	if ((approx_heading == DIR_UP || approx_heading == DIR_BACK || approx_heading == -180) &&
-		(offset_y > LINE_WIDTH))
-		y = round(y / GRID_WIDTH) * GRID_WIDTH;
-	else if ((approx_heading == DIR_LEFT || approx_heading == DIR_RIGHT) &&
-		(offset_x > LINE_WIDTH))
-		x = round(x / GRID_WIDTH) * GRID_WIDTH;
-}
 
 // assuing sensor input is analog and output is digital
 int add_sensor(byte sensor_pin, byte indicator_pin) {
@@ -119,13 +57,16 @@ int add_sensor(byte sensor_pin, byte indicator_pin) {
 	return sensor_num;
 }
 
+bool on_line(byte pin) {
+	return on_lines & pin;
+}
 
 // turn on an indicator (assuming digital) if sensor detects below threshold
 void indicate_sensors() {
     for (byte i = 0; i < SENSOR_MAX; ++i) {
-        on_lines[i] = analogRead(sensors[i]) > thresholds[i];
-        if (on_lines[i]) digitalWrite(indicators[i],HIGH);
-        else digitalWrite(indicators[i],LOW);
+    	// clear ith bit or set ith bit
+    	if (analogRead(sensors[i]) > thresholds[i]) {on_lines |= (1 << i); digitalWrite(indicators[i],HIGH);}
+    	else										{on_lines &= ~(1 << i); digitalWrite(indicators[i],LOW);}
  	}    
 }
 
