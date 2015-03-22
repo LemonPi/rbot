@@ -41,7 +41,7 @@ constexpr byte CENTER = B0001;		// center sensor is sensor 0
 constexpr byte LEFT = 	B0010;
 constexpr byte RIGHT = 	B0100;
 constexpr byte BALL = 	B1000;
-constexpr float SIDE_SENSOR_DISTANCE = 20;
+constexpr float SIDE_SENSOR_DISTANCE = 38;
 
 
 // PID speed control
@@ -120,7 +120,8 @@ constexpr int DIR_BACK = 180;
 constexpr int CORRECT_SPEED = 10;			// one wheel travels at 0 and the other 2*CORRECT_SPEED
 constexpr byte INTERSECTION_TOO_CLOSE = 50;	// allowed range [50,150] for x and y for a correct
 constexpr int DISTANCE_PER_CORRECT = 500;	// correcting theta by aligning to a line
-constexpr int DISTANCE_PER_PASSIVE_CORRECT = 500;	// correct theta by the distance before all 3 crosses the line
+constexpr int CORRECT_TOO_FAR = 30;	// correct theta by the distance before all 3 crosses the line
+
 
 constexpr int PASSED_NONE = 0;
 constexpr int PASSED_LEFT = LEFT << 3;

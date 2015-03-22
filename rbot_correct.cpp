@@ -18,6 +18,12 @@ void passive_correct() {
 
 	if (passive_status == PASSED_NONE || !far_from_intersection(x, y)) return;
 
+	// travelling too parallel to line
+	if (tot_distance - correct_initial_distance > CORRECT_TOO_FAR) {
+		passive_status = PASSED_NONE;
+		return;
+	}
+
 	// check if encountering any additional lines
 	passive_status |= (on_lines & B111);
 
@@ -29,23 +35,29 @@ void passive_correct() {
 	if (((passive_status & PASSED_LEFT_RIGHT) == PASSED_LEFT_RIGHT) ||
 		((passive_status & PASSED_RIGHT_LEFT) == PASSED_RIGHT_LEFT)) {
 
-		Serial.print("p'");
-		Serial.println(passive_status, BIN);
 
-		if (far_from_intersection(x, y)) {
-
-			// distance since when passive correct was activated
-			float correct_elapsed_distance = tot_distance - correct_initial_distance;
-			
-			// always positive
-			float theta_offset = atan2(correct_elapsed_distance, SIDE_SENSOR_DISTANCE);
-
-			// assume whichever one passed first was the first to hit
-			if (passive_status & PASSED_LEFT) theta = (square_heading()*DEGS) + theta_offset;
-			else theta = (square_heading()*DEGS) - theta_offset;
-
-			Serial.println('P');
+		// distance since when passive correct was activated
+		float correct_elapsed_distance;
+		// under 1 behaviour loop
+		if (tot_distance == correct_initial_distance) {
+			instant_tick_l = tick_l;
+			instant_tick_r = tick_r;
+			double displacement_l = dir_l * (double)instant_tick_l * MM_PER_TICK_L;
+			double displacement_r = dir_r * (double)instant_tick_r * MM_PER_TICK_R;
+			correct_elapsed_distance = (displacement_l + displacement_r) * 0.5;
 		}
+		else correct_elapsed_distance = tot_distance - correct_initial_distance;
+		
+		// always positive
+		float theta_offset = atan2(correct_elapsed_distance, SIDE_SENSOR_DISTANCE);
+
+		// assume whichever one passed first was the first to hit
+		if (passive_status & PASSED_LEFT) theta = (square_heading()*DEGS) + theta_offset;
+		else theta = (square_heading()*DEGS) - theta_offset;
+
+		Serial.print('P');
+		Serial.println(passive_status, BIN);
+		
 
 		// reset even if not activated on this line (false alarm)
 		passive_status = PASSED_NONE;
