@@ -5,7 +5,7 @@ namespace robot {
 
 // correct passing a line not too close to an intersection
 void passive_correct() {
-	// activate passive correct
+	// activate passive correct when either left or right sensor FIRST ACTIVATES
 	if ((on_line(LEFT) || on_line(RIGHT)) && passive_status == PASSED_NONE && far_from_intersection(x, y)) {
 
 		correct_initial_distance = tot_distance;
@@ -25,6 +25,9 @@ void passive_correct() {
 		return;
 	}
 
+	// check if center one first activated; halfway there
+	if (on_line(CENTER) && !(passive_status & CENTER)) correct_half_distance = tot_distance;
+
 	// check if encountering any additional lines
 	passive_status |= (on_lines & B111);
 
@@ -32,7 +35,7 @@ void passive_correct() {
 	if (!on_line(LEFT) && (passive_status & LEFT)) passive_status |= PASSED_LEFT;
 	if (!on_line(RIGHT) && (passive_status & RIGHT)) passive_status |= PASSED_RIGHT;
 
-	// correct when 1 passed and the other one just activated
+	// correct when 1 fully passed and the other one just activated
 	if (((passive_status & PASSED_LEFT_RIGHT) == PASSED_LEFT_RIGHT) ||
 		((passive_status & PASSED_RIGHT_LEFT) == PASSED_RIGHT_LEFT)) {
 
@@ -48,21 +51,29 @@ void passive_correct() {
 		}
 		else correct_elapsed_distance = tot_distance - correct_initial_distance;
 		
-		// always positive
-		float theta_offset = atan2(correct_elapsed_distance, SIDE_SENSOR_DISTANCE);
+		// correct only if the 2 half distances are about the same
+		if (abs((tot_distance - correct_half_distance) - (correct_half_distance - correct_initial_distance)) < CORRECT_CROSSING_TOLERANCE) {
+			
+			// always positive
+			float theta_offset = atan2(correct_elapsed_distance, SIDE_SENSOR_DISTANCE);
 
-		// reverse theta correction if direction is backwards
-		if (layers[get_active_layer()].speed < 0) theta_offset = -theta_offset; 
+			// reverse theta correction if direction is backwards
+			if (layers[get_active_layer()].speed < 0) theta_offset = -theta_offset; 
 
-		Serial.println(square_heading());
-		// assume whichever one passed first was the first to hit
-		if (passive_status & PASSED_LEFT) theta = (square_heading()*DEGS) + theta_offset;
-		else theta = (square_heading()*DEGS) - theta_offset;
+			Serial.println(square_heading());
+			// assume whichever one passed first was the first to hit
+			if (passive_status & PASSED_LEFT) theta = (square_heading()*DEGS) + theta_offset;
+			else theta = (square_heading()*DEGS) - theta_offset;
 
-		Serial.println(theta_offset);
-		Serial.print('P');
-		Serial.println(passive_status, BIN);
-		
+			Serial.println(theta_offset);
+			Serial.print('P');
+			Serial.println(passive_status, BIN);
+
+		}
+		// suspicious of an intersection
+		else {
+			Serial.println("pI");
+		}
 
 		// reset even if not activated on this line (false alarm)
 		passive_status = PASSED_NONE;

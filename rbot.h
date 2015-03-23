@@ -4,17 +4,22 @@
 
 namespace robot {
 
+struct Hopper {
+	byte index, load;
+};
+
 extern byte ball_status;
 extern bool getting_ball;
 extern Adafruit_TiCoServo gate;
 extern float get_initial_distance;
-extern byte hoppers[HOPPER_NUM];
+extern Hopper hoppers[HOPPER_NUM];
 
 extern int cycles_on_line, counted_lines;
 extern bool corrected_while_backing_up;
 
 extern int passive_status;
 extern float correct_initial_distance;
+extern float correct_half_distance;
 
 
 void initialize_rbot(byte servo_pin);

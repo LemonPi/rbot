@@ -4,7 +4,7 @@
 
 namespace robot {
 
-byte hoppers[HOPPER_NUM] = {HOPPER1, HOPPER2, HOPPER3, HOPPER4};
+Hopper hoppers[HOPPER_NUM] = {{HOPPER1, 7}, {HOPPER2, 7}, {HOPPER3, 4}, {HOPPER4, 4}};
 
 const int x_lookup[4] = {1230,1010,790,570};
 const int y_lookup[7] = {420,550,670,800,930,1050,1170};

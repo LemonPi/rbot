@@ -13,6 +13,7 @@ bool corrected_while_backing_up;
 
 int passive_status;
 float correct_initial_distance;
+float correct_half_distance;
 
 // called inside every go cycle
 void user_behaviours() {
@@ -46,21 +47,26 @@ void user_waypoint() {
 		float distance;
 		Target min_target;
 		Target cur_target;
-		for (byte h = 0; hoppers[h] < boundary_num && h < HOPPER_NUM; ++h) {
-			cur_target = approach_hopper(hoppers[h]);
+		// hopper number, at the end of the loop will be the one to select
+		byte selected_hopper;
+		// load of hopper needs to be > 0 for it to be considered
+		for (byte h = 0; hoppers[h].index < boundary_num && h < HOPPER_NUM && hoppers[h].load > 0; ++h) {
+			cur_target = approach_hopper(hoppers[h].index);
 			distance = sqrt(sq(x - cur_target.x) + sq(y - cur_target.y));
 			// find a close hopper
 			// also check that getting there won't bring you too close to another hopper
 			if (distance < min_distance) {
 				min_distance = distance; 
 				min_target = cur_target;
+				selected_hopper = h;
 			}
 		}
 		// go to that hopper if one exists
 		if (min_distance != 10000) {
 			// get the ball when you get there
 			add_target(min_target.x, min_target.y, min_target.theta, TARGET_GET, true);
-
+			// anticipate decreasing the selected hopper's load (can't easily do that at the point of getting)
+			--hoppers[selected_hopper].load;
 			Serial.println('g');
 		}
 	}
