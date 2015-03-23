@@ -77,7 +77,7 @@ void navigate() {
 		nav.active = false;
 
 		Serial.print("t ");
-		Serial.println((int)heading_error*RADS);
+		Serial.println((int)(heading_error*RADS));
 		
 	}
 
@@ -142,7 +142,7 @@ void waypoint() {
 	}
 	// reached last target
 	else if (target == 0) {
-		--target;
+		target = NONE_ACTIVE;
 		layers[LAYER_NAV].active = false;
 		layers[LAYER_TURN].active = false;
 	}

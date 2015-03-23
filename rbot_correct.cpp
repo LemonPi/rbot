@@ -21,6 +21,7 @@ void passive_correct() {
 	// travelling too parallel to line
 	if (tot_distance - correct_initial_distance > CORRECT_TOO_FAR) {
 		passive_status = PASSED_NONE;
+		Serial.print("pR");
 		return;
 	}
 
@@ -34,7 +35,6 @@ void passive_correct() {
 	// correct when 1 passed and the other one just activated
 	if (((passive_status & PASSED_LEFT_RIGHT) == PASSED_LEFT_RIGHT) ||
 		((passive_status & PASSED_RIGHT_LEFT) == PASSED_RIGHT_LEFT)) {
-
 
 		// distance since when passive correct was activated
 		float correct_elapsed_distance;
