@@ -102,12 +102,11 @@ constexpr int COLONY_RADIUS = 150;
 // line detecting sensors
 constexpr int CALLIBRATION_TIME = 5000;	// 5s
 constexpr int THRESHOLD_TOLERANCE = 3;
-constexpr int LINE_WIDTH = 10; 			// about 1cm
-constexpr float HALF_LINE_WIDTH = 2.5;
+constexpr int LINE_WIDTH = 9; 			// about 1cm
+constexpr float HALF_LINE_WIDTH = 4.5;
 constexpr int GRID_WIDTH = 200;			// grid spaced about 200mm apart
 constexpr int CYCLES_CROSSING_LINE = 2; 	// cycles on line for false positive to fail
-constexpr int CYCLES_FOLLOWING_LINE = 100;
-constexpr int LINES_PER_CORRECT = 1;	// how many lines to cross before correcting; 0 is every line
+constexpr int LINES_PER_CORRECT = 0;	// how many lines to cross before correcting; 0 is every line
 
 // correct to line directions
 constexpr int DIR_UP = 0;
@@ -119,7 +118,7 @@ constexpr int DIR_BACK = 180;
 // correction
 constexpr int CORRECT_SPEED = 10;			// one wheel travels at 0 and the other 2*CORRECT_SPEED
 constexpr byte INTERSECTION_TOO_CLOSE = 50;	// allowed range [50,150] for x and y for a correct
-constexpr int CORRECT_TOO_FAR = 500;	// correct theta by the distance before all 3 crosses the line
+constexpr int CORRECT_TOO_FAR = 40;	// correct theta by the distance before all 3 crosses the line
 
 constexpr int PASSED_NONE = 0;
 constexpr int PASSED_LEFT = LEFT << 3;

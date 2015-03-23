@@ -22,7 +22,7 @@ void user_behaviours() {
 
 // control the correction layer
 void user_correct() {
-	if (layers[LAYER_TURN].active || layers[LAYER_BOUND].active) return;
+	if (layers[LAYER_TURN].active) return;
 	passive_correct();
 	passive_position_correct();
 }
@@ -49,6 +49,8 @@ void user_waypoint() {
 		for (byte h = 0; hoppers[h] < boundary_num && h < HOPPER_NUM; ++h) {
 			cur_target = approach_hopper(hoppers[h]);
 			distance = sqrt(sq(x - cur_target.x) + sq(y - cur_target.y));
+			// find a close hopper
+			// also check that getting there won't bring you too close to another hopper
 			if (distance < min_distance) {
 				min_distance = distance; 
 				min_target = cur_target;

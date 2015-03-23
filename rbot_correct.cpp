@@ -51,10 +51,15 @@ void passive_correct() {
 		// always positive
 		float theta_offset = atan2(correct_elapsed_distance, SIDE_SENSOR_DISTANCE);
 
+		// reverse theta correction if direction is backwards
+		if (layers[get_active_layer()].speed < 0) theta_offset = -theta_offset; 
+
+		Serial.println(square_heading());
 		// assume whichever one passed first was the first to hit
 		if (passive_status & PASSED_LEFT) theta = (square_heading()*DEGS) + theta_offset;
 		else theta = (square_heading()*DEGS) - theta_offset;
 
+		Serial.println(theta_offset);
 		Serial.print('P');
 		Serial.println(passive_status, BIN);
 		

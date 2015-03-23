@@ -36,11 +36,7 @@ void correct_to_grid() {
 
 // round angle to multiples of 90
 int square_heading() {
-	int approx_heading = theta * RADS;	// degrees between [-180,180]
-	int offset = approx_heading % 90;	// offset from a 90 degree turn
-	// force heading to be modulo 90 to give direction
-	approx_heading -= offset;
-	return approx_heading;
+	return round(theta*RADS / 90) * 90;
 }
 
 
