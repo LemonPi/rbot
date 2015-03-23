@@ -30,6 +30,7 @@ void close_gate();
 
 void add_hopper(byte p1, byte p2, byte p3);
 Target approach_hopper(byte hopper);
+byte hopper_select(byte hopper, byte exclude = 200);
 
 void open_hoppers();
 void close_hoppers();

@@ -59,9 +59,8 @@ void add_hopper(byte p1, byte p2, byte p3) {
 	add_boundary((px[0]+px[1]+px[2])/3, (py[0]+py[1]+py[2])/3, HOPPER_RADIUS);
 }
 
+// propose a target for approaching the hopper
 Target approach_hopper(byte hopper) {
-	double max_dist = 0; 
-	int max_index = 0;
 	// corner hoppers have only 1 direction of approach
 	if (hopper == HOPPER3 || hopper == HOPPER4) {
 		// find center point of the 2 pillars
@@ -75,22 +74,56 @@ Target approach_hopper(byte hopper) {
 	}
 	// test 3 pillars with boundary indices before the hopper index
 	else {
-		// find furthest away pillar
-		for (int i = 1; i < 4; ++i) {
-			double dist; 
-			// avoid boundary hasn't updated yet
-			if (boundaries[hopper-i].distance == 0) dist = sqrt(sq(boundaries[hopper-i].x - x) + sq(boundaries[hopper-i].y - y));
-			else dist = boundaries[hopper-i].distance;
+		// assume target safe by default
+		bool safe_target = false;
+		byte exclude_pillar = 200;	// don't exclude any pillars initially
 
-			if (dist > max_dist) {max_dist = dist; max_index = hopper-i;}
-		}
+		double off_x, off_y, candidate_x, candidate_y;
 
-		// offset vector from hopper
-		double off_x = boundaries[max_index].x - boundaries[hopper].x;
-		double off_y = boundaries[max_index].y - boundaries[hopper].y;
+		while (!safe_target) {
+			safe_target = true;
+			byte max_index = hopper_select(hopper, exclude_pillar);
+			// offset vector from hopper
+			off_x = boundaries[max_index].x - boundaries[hopper].x;
+			off_y = boundaries[max_index].y - boundaries[hopper].y;
 
-		return Target{boundaries[hopper].x - off_x, boundaries[hopper].y - off_y, atan2(off_y, off_x)};
+			candidate_x = boundaries[hopper].x - off_x;
+			candidate_y = boundaries[hopper].y - off_y;
+			
+			// check if candidate x and y are too close to another hopper
+			for (byte h = 0; hoppers[h].index < boundary_num && h < HOPPER_NUM; ++h) {
+				// only consider other hoppers
+				float turning_room = sqrt(sq(boundaries[hoppers[h].index].x - candidate_x) + sq(boundaries[hoppers[h].index].y - candidate_y));
+				// Serial.println(turning_room);
+				
+				if (hoppers[h].index == hopper) continue;
+				// reconsider if distance is too close
+				if (turning_room < OTHER_HOPPER_TOO_CLOSE)
+					safe_target = false;
+				
+			} 
+		} 
+
+		return Target{candidate_x, candidate_y, atan2(off_y, off_x)};
 	}
+}
+
+byte hopper_select(byte hopper, byte exclude) {
+	double max_dist = 0;
+	byte max_index = 0;
+	// find furthest away pillar
+	for (byte i = 1; i < 4; ++i) {
+		// exclude the target produced by this pillar (since it'd bring the robot too close to another hopper)
+		if (hopper - i == exclude) continue;
+
+		double dist; 
+		// avoid boundary hasn't updated yet
+		if (boundaries[hopper-i].distance == 0) dist = sqrt(sq(boundaries[hopper-i].x - x) + sq(boundaries[hopper-i].y - y));
+		else dist = boundaries[hopper-i].distance;
+
+		if (dist > max_dist) {max_dist = dist; max_index = hopper-i;}
+	}
+	return max_index;
 }
 
 void open_hoppers() {

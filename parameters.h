@@ -49,6 +49,7 @@ constexpr int FORWARD = 1;
 constexpr int BACKWARD = -1;
 
 constexpr float BASE_WIDTH = 99.0;
+constexpr float TURNING_RADIUS = BASE_WIDTH;
 constexpr float RECIPROCAL_BASE_WIDTH = 0.01004009;	// using reciprocal due to faster multiply than divide
 constexpr float MM_PER_TICK_L = 0.1714829559*1000/1045;
 constexpr float MM_PER_TICK_R = 0.16966084148*1000/1045;
@@ -97,7 +98,9 @@ constexpr byte HOPPER4 = 13;
 
 constexpr float PILLAR_RADIUS = 24.15;
 constexpr float HOPPER_RADIUS = 20.55;
-constexpr int COLONY_RADIUS = 150;
+constexpr int COLONY_RADIUS = 150;		// including the 3 pillars
+constexpr float OTHER_HOPPER_TOO_CLOSE = COLONY_RADIUS + TURNING_RADIUS + 50;	// how close the target can be to another hopper
+
 
 // line detecting sensors
 constexpr int CALLIBRATION_TIME = 5000;	// 5s
