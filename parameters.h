@@ -14,14 +14,13 @@ constexpr bool MANUAL = false;
 constexpr bool AUTOMATIC = true;
 
 // subsumption layers
-constexpr byte LAYER_NUM = 7;
+constexpr byte LAYER_NUM = 6;
 constexpr byte LAYER_BOUND = 0; // highest priority
 constexpr byte LAYER_TURN = 1;
 constexpr byte LAYER_NAV = 2;
-constexpr byte LAYER_COR = 3;	
-constexpr byte LAYER_GET = 4;	// retrieve from hopper
-constexpr byte LAYER_PUT = 5;	// deposit ball to rendevous
-constexpr byte LAYER_WAIT = 6;
+constexpr byte LAYER_GET = 3;	// retrieve from hopper
+constexpr byte LAYER_PUT = 4;	// deposit ball to rendevous
+constexpr byte LAYER_WAIT = 5;
 
 constexpr int CYCLE_TIME = 50; 	// in ms
 constexpr int SENSOR_TIME = 10;  // in ms, 5x faster than navigation cycles
@@ -39,11 +38,11 @@ constexpr byte TARGET_GET = 3;
 constexpr byte TARGET_PUT = 4;
 
 // sensor indices
-constexpr byte CENTER = 0;		// center sensor is sensor 0
-constexpr byte LEFT = 1;
-constexpr byte RIGHT = 2;
-constexpr byte BALL = 3;
-constexpr float SIDE_SENSOR_DISTANCE = 16;
+constexpr byte CENTER = B0001;		// center sensor is sensor 0
+constexpr byte LEFT = 	B0010;
+constexpr byte RIGHT = 	B0100;
+constexpr byte BALL = 	B1000;
+constexpr float SIDE_SENSOR_DISTANCE = 43.5;
 
 
 // PID speed control
@@ -51,9 +50,10 @@ constexpr int FORWARD = 1;
 constexpr int BACKWARD = -1;
 
 constexpr float BASE_WIDTH = 99.0;
+constexpr float TURNING_RADIUS = BASE_WIDTH;
 constexpr float RECIPROCAL_BASE_WIDTH = 0.01004009;	// using reciprocal due to faster multiply than divide
-constexpr float MM_PER_TICK_L = 0.1721899559;
-constexpr float MM_PER_TICK_R = 0.16866084148;
+constexpr float MM_PER_TICK_L = 0.1714829559*1000/1045;
+constexpr float MM_PER_TICK_R = 0.16966084148*1000/1045;
 
 constexpr float KP = 1.194;
 constexpr float KI = 1.2;
@@ -61,9 +61,9 @@ constexpr float KD = 0.005;
 
 constexpr int TPR = 1200;
 
-constexpr int TOP_SPEED = 55; 	// in ticks per cycle 
+constexpr int TOP_SPEED = 45; 	// in ticks per cycle 
 constexpr int MIN_SPEED = 20;
-constexpr int START_SPEED = 55;
+constexpr int START_SPEED = 45;
 
 
 // navigation
@@ -99,17 +99,18 @@ constexpr byte HOPPER4 = 13;
 
 constexpr float PILLAR_RADIUS = 24.15;
 constexpr float HOPPER_RADIUS = 20.55;
-constexpr int COLONY_RADIUS = 150;
+constexpr int COLONY_RADIUS = 150;		// including the 3 pillars
+constexpr float OTHER_HOPPER_TOO_CLOSE = COLONY_RADIUS + TURNING_RADIUS + 100;	// how close the target can be to another hopper
+
 
 // line detecting sensors
 constexpr int CALLIBRATION_TIME = 5000;	// 5s
 constexpr int THRESHOLD_TOLERANCE = 3;
-constexpr int LINE_WIDTH = 10; 			// about 1cm
-constexpr float HALF_LINE_WIDTH = 2.5;
+constexpr int LINE_WIDTH = 9; 			// about 1cm
+constexpr float HALF_LINE_WIDTH = 4.5;
 constexpr int GRID_WIDTH = 200;			// grid spaced about 200mm apart
 constexpr int CYCLES_CROSSING_LINE = 2; 	// cycles on line for false positive to fail
-constexpr int CYCLES_FOLLOWING_LINE = 100;
-constexpr int LINES_PER_CORRECT = 2;	// how many lines to cross before correcting; 0 is every line
+constexpr int LINES_PER_CORRECT = 0;	// how many lines to cross before correcting; 0 is every line
 
 // correct to line directions
 constexpr int DIR_UP = 0;
@@ -120,13 +121,15 @@ constexpr int DIR_BACK = 180;
 
 // correction
 constexpr int CORRECT_SPEED = 10;			// one wheel travels at 0 and the other 2*CORRECT_SPEED
-constexpr byte INTERSECTION_TOO_CLOSE = 40;	// allowed range [40,160] for x and y for a correct
-constexpr int DISTANCE_PER_CORRECT = 100;	// correcting theta by aligning to a line
-constexpr int DISTANCE_PER_PASSIVE_CORRECT = 500;	// correct theta by the distance before all 3 crosses the line
-constexpr int CORRECT_CLOSE_ENOUGH = 35;
-constexpr byte INFRONT = 0;
-constexpr byte ONTOP = 1;
-constexpr byte BEHIND = 2;
+constexpr byte INTERSECTION_TOO_CLOSE = 40;	// allowed range [50,150] for x and y for a correct
+constexpr int CORRECT_TOO_FAR = 40;	// correct theta by the distance before all 3 crosses the line
+constexpr float CORRECT_CROSSING_TOLERANCE = 4;	// accepted difference in distance travelled between the 2 halves of crossing a line
+
+constexpr int PASSED_NONE = 0;
+constexpr int PASSED_LEFT = LEFT << 3;
+constexpr int PASSED_RIGHT = RIGHT << 3;
+constexpr int PASSED_LEFT_RIGHT = B010101;	// left passed, right active, center active
+constexpr int PASSED_RIGHT_LEFT = B100011;	// right passed, left active, center active
 
 
 
@@ -139,6 +142,6 @@ constexpr int GET_SPEED = 0.5*TOP_SPEED;
 // ball statuses
 constexpr byte BALL_LESS = 0;
 constexpr byte JUST_GOT_BALL = 1;
-constexpr byte SECURED_BALL = 10;	// cycles of gate closing
+constexpr byte SECURED_BALL = 15;	// cycles of gate closing
 
 }

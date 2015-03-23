@@ -10,12 +10,7 @@ int add_target(double tx, double ty, double td, byte type, bool rad) {
 	if (target + 1 >= TARGET_MAX) return -1;
 
 	if (td != ANY_THETA) {
-		// square turns at intersections, so in hard turn can use on-line to tell if turned enough 
-		if ((int)td % 90 == 0 && 
-			((int)tx % 200 == 0 || (int)ty % 200 == 0)) 
-			square_turn = true;
-
-		if (!rad) td *= PI / 180.0;
+		if (!rad) td *= DEGS;
 	}
 	++target;
 	targets[target].x = tx;
@@ -73,7 +68,6 @@ void navigate() {
 			(boundaries[active_boundary].distance > target_distance &&	// target is closer than the boundary
 			abs(boundaries[active_boundary].theta - heading_error) > 0.3)) &&
 		target_distance > TARGET_IMMEDIATE &&
-		// !layers[LAYER_TURN].active &&	// not already turning 
 		drive == AUTOMATIC &&
 		abs(heading_error) > CAN_TURN_IN_PLACE) { 	// need large enough of a turn)
 
@@ -83,7 +77,7 @@ void navigate() {
 		nav.active = false;
 
 		Serial.print("t ");
-		Serial.println(heading_error + theta);
+		Serial.println((int)(heading_error*RADS));
 		
 	}
 
@@ -148,7 +142,7 @@ void waypoint() {
 	}
 	// reached last target
 	else if (target == 0) {
-		--target;
+		target = NONE_ACTIVE;
 		layers[LAYER_NAV].active = false;
 		layers[LAYER_TURN].active = false;
 	}
