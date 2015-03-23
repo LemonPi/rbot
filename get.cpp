@@ -94,13 +94,13 @@ Target approach_hopper(byte hopper) {
 			for (byte h = 0; hoppers[h].index < boundary_num && h < HOPPER_NUM; ++h) {
 				// only consider other hoppers
 				float turning_room = sqrt(sq(boundaries[hoppers[h].index].x - candidate_x) + sq(boundaries[hoppers[h].index].y - candidate_y));
-				// Serial.println(turning_room);
 				
 				if (hoppers[h].index == hopper) continue;
 				// reconsider if distance is too close
-				if (turning_room < OTHER_HOPPER_TOO_CLOSE)
+				if (turning_room < OTHER_HOPPER_TOO_CLOSE) {
+					exclude_pillar = max_index;
 					safe_target = false;
-				
+				}
 			} 
 		} 
 

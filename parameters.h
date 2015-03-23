@@ -99,7 +99,7 @@ constexpr byte HOPPER4 = 13;
 constexpr float PILLAR_RADIUS = 24.15;
 constexpr float HOPPER_RADIUS = 20.55;
 constexpr int COLONY_RADIUS = 150;		// including the 3 pillars
-constexpr float OTHER_HOPPER_TOO_CLOSE = COLONY_RADIUS + TURNING_RADIUS + 50;	// how close the target can be to another hopper
+constexpr float OTHER_HOPPER_TOO_CLOSE = COLONY_RADIUS + TURNING_RADIUS + 100;	// how close the target can be to another hopper
 
 
 // line detecting sensors
