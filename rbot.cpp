@@ -28,26 +28,8 @@ void user_correct() {
 	passive_position_correct();
 }
 
-// control the correction layer
-void user_correct() {
-	// passive position correction
-	line_detect();
-
-	// choose a line to correct to (sets target)
-	active_correct_choose_line();
-	// when close to the chosen line, listen to sensors
-	active_correct_against_line();
-}
-
 // called after arriving
 void user_waypoint() {
-	// active correcting not completed yet
-	if (layers[LAYER_COR].active) {
-		++target;
-		// turn off navigation, let correction do its job
-		layers[LAYER_NAV].active = false;
-	}
-
 	// previous target was to get the ball (target+1 was immediately previous target)
 	if (targets[target+1].type == TARGET_GET) {
 		layers[LAYER_GET].active = true;
@@ -107,12 +89,5 @@ void user_start() {
 	passive_status = PASSED_NONE;
 }
 
-void user_start() {
-	cycles_on_line = 0;
-	counted_lines = 0;
-	last_correct_distance = 0;
-	hit_first = NONE_ACTIVE;
-	center_status = INFRONT;
-}
 
 }	// end namespace
