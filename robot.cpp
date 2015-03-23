@@ -295,7 +295,7 @@ void motor_control(byte layer) {
 void set_coordinate(double tx, double ty, double td) {
 	x = tx;
 	y = ty;
-	theta = td*RADS;
+	theta = td*DEGS;
 }
 
 void set_drive(bool mode) {drive = mode;}

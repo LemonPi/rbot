@@ -50,7 +50,7 @@ void avoid_boundary() {
 	}
 
 	// don't avoid boundary if you're turning in place or close to target
-	if (layers[LAYER_TURN].active || target_distance < TARGET_IMMEDIATE) return;
+	if (layers[LAYER_TURN].active || target_distance < TARGET_IMMEDIATE || targets[target].type == TARGET_GET) return;
 	
 	// take care of the case when all boundaries are inactive
 	double max_threat = 0;

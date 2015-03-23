@@ -29,11 +29,13 @@ void get_ball() {
 	// after securing ball, drive backwards for the same amount of distance
 	else if (ball_status == SECURED_BALL) {
 		if (paused) resume_drive();
-		if (tot_distance - get_initial_distance < 3.5*GET_DISTANCE) get.speed = -GET_SPEED;
+		// back up until you hit a line to correct position
+		if (!on_line(CENTER)) get.speed = -GET_SPEED;
+		else {corrected_while_backing_up = true; correct_to_grid();}
+		
+		if (corrected_while_backing_up && tot_distance - get_initial_distance > 3*GET_DISTANCE) {
 		// after getting ball, return to rendezvous point
-		else {
-			// set up crossed lines to be corrected on the next line cross
-			counted_lines = LINES_PER_CORRECT;
+			corrected_while_backing_up = false;
 			layers[LAYER_GET].active = false;
 			add_target(RENDEZVOUS_X, RENDEZVOUS_Y, 0, TARGET_PUT);
 			close_hoppers();

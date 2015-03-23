@@ -68,7 +68,6 @@ void navigate() {
 			(boundaries[active_boundary].distance > target_distance &&	// target is closer than the boundary
 			abs(boundaries[active_boundary].theta - heading_error) > 0.3)) &&
 		target_distance > TARGET_IMMEDIATE &&
-		// !layers[LAYER_TURN].active &&	// not already turning 
 		drive == AUTOMATIC &&
 		abs(heading_error) > CAN_TURN_IN_PLACE) { 	// need large enough of a turn)
 
@@ -78,7 +77,7 @@ void navigate() {
 		nav.active = false;
 
 		Serial.print("t ");
-		Serial.println(heading_error + theta);
+		Serial.println((int)heading_error*RADS);
 		
 	}
 

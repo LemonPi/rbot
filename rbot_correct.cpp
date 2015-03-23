@@ -81,7 +81,7 @@ void passive_position_correct() {
 	else {
 		// false positive, not on line for enough cycles
 		if (cycles_on_line < CYCLES_CROSSING_LINE && cycles_on_line >= 0) ;
-		else if (counted_lines >= LINES_PER_CORRECT || cycles_on_line > CYCLES_FOLLOWING_LINE) {
+		else if (counted_lines >= LINES_PER_CORRECT && far_from_intersection(x, y)) {
 			counted_lines = 0;
 			// correct whichever one is closer to 0 or 200 
 			correct_to_grid();

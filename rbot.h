@@ -11,6 +11,7 @@ extern float get_initial_distance;
 extern byte hoppers[HOPPER_NUM];
 
 extern int cycles_on_line, counted_lines;
+extern bool corrected_while_backing_up;
 
 extern int passive_status;
 extern float correct_initial_distance;
@@ -29,7 +30,9 @@ void open_hoppers();
 void close_hoppers();
 
 // put module (deposit ball to gbot)
+void put_ball();
 void open_gate();
+
 
 // user correct
 // correct theta at lines

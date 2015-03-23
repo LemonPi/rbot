@@ -51,7 +51,7 @@ constexpr int BACKWARD = -1;
 constexpr float BASE_WIDTH = 99.0;
 constexpr float RECIPROCAL_BASE_WIDTH = 0.01004009;	// using reciprocal due to faster multiply than divide
 constexpr float MM_PER_TICK_L = 0.1714829559*1000/1045;
-constexpr float MM_PER_TICK_R = 0.16866084148*1000/1045;
+constexpr float MM_PER_TICK_R = 0.16966084148*1000/1045;
 
 constexpr float KP = 1.194;
 constexpr float KI = 1.2;
@@ -59,9 +59,9 @@ constexpr float KD = 0.005;
 
 constexpr int TPR = 1200;
 
-constexpr int TOP_SPEED = 55; 	// in ticks per cycle 
+constexpr int TOP_SPEED = 45; 	// in ticks per cycle 
 constexpr int MIN_SPEED = 20;
-constexpr int START_SPEED = 55;
+constexpr int START_SPEED = 45;
 
 
 // navigation
@@ -119,16 +119,13 @@ constexpr int DIR_BACK = 180;
 // correction
 constexpr int CORRECT_SPEED = 10;			// one wheel travels at 0 and the other 2*CORRECT_SPEED
 constexpr byte INTERSECTION_TOO_CLOSE = 50;	// allowed range [50,150] for x and y for a correct
-constexpr int DISTANCE_PER_CORRECT = 500;	// correcting theta by aligning to a line
 constexpr int CORRECT_TOO_FAR = 30;	// correct theta by the distance before all 3 crosses the line
-
 
 constexpr int PASSED_NONE = 0;
 constexpr int PASSED_LEFT = LEFT << 3;
 constexpr int PASSED_RIGHT = RIGHT << 3;
 constexpr int PASSED_LEFT_RIGHT = B010101;	// left passed, right active, center active
 constexpr int PASSED_RIGHT_LEFT = B100011;	// right passed, left active, center active
-
 
 
 
@@ -141,6 +138,6 @@ constexpr int GET_SPEED = 0.5*TOP_SPEED;
 // ball statuses
 constexpr byte BALL_LESS = 0;
 constexpr byte JUST_GOT_BALL = 1;
-constexpr byte SECURED_BALL = 10;	// cycles of gate closing
+constexpr byte SECURED_BALL = 15;	// cycles of gate closing
 
 }
