@@ -3,12 +3,33 @@
 
 namespace robot {
 
+double current_distance() {
+	// accumulate current ticks
+	instant_tick_l = tick_l;
+	instant_tick_r = tick_r;
+	double displacement_l = dir_l * (double)instant_tick_l * MM_PER_TICK_L;
+	double displacement_r = dir_r * (double)instant_tick_r * MM_PER_TICK_R;
+
+	return tot_distance + abs(displacement_l + displacement_r)*0.5;	
+}
+
 // correct passing a line not too close to an intersection
 void passive_correct() {
-	// activate passive correct when either left or right sensor FIRST ACTIVATES
-	if ((on_line(LEFT) || on_line(RIGHT)) && passive_status == PASSED_NONE && far_from_intersection(x, y)) {
 
-		correct_initial_distance = tot_distance;
+	if (!far_from_intersection(x, y)) return;
+	// still on cool down
+	else if (passive_status < PASSED_NONE) {++passive_status; return;}
+
+	// check if center one first activated; halfway there
+	if (on_line(CENTER) && !(passive_status & CENTER)) {
+		correct_half_distance = current_distance();
+		Serial.println("pH");
+	}
+
+	// activate passive correct when either left or right sensor FIRST ACTIVATES
+	if ((on_line(LEFT) || on_line(RIGHT)) && passive_status == PASSED_NONE) {
+
+		correct_initial_distance = current_distance();
 		// only look at RIGHT LEFT CENTER
 		passive_status |= (on_lines & B111);
 		Serial.print('p');
@@ -16,17 +37,12 @@ void passive_correct() {
 		return;
 	}
 
-	if (passive_status == PASSED_NONE || !far_from_intersection(x, y)) return;
-
-	// travelling too parallel to line
-	if (tot_distance - correct_initial_distance > CORRECT_TOO_FAR) {
-		passive_status = PASSED_NONE;
-		Serial.print("pR");
+	// travelling too parallel to line and passed some lines
+	if (passive_status != PASSED_NONE && tot_distance - correct_initial_distance > CORRECT_TOO_FAR) {
+		passive_status = PASSED_COOL_DOWN;
+		Serial.print("pP");
 		return;
 	}
-
-	// check if center one first activated; halfway there
-	if (on_line(CENTER) && !(passive_status & CENTER)) correct_half_distance = tot_distance;
 
 	// check if encountering any additional lines
 	passive_status |= (on_lines & B111);
@@ -38,45 +54,36 @@ void passive_correct() {
 	// correct when 1 fully passed and the other one just activated
 	if (((passive_status & PASSED_LEFT_RIGHT) == PASSED_LEFT_RIGHT) ||
 		((passive_status & PASSED_RIGHT_LEFT) == PASSED_RIGHT_LEFT)) {
-
-		// distance since when passive correct was activated
-		float correct_elapsed_distance;
-		// under 1 behaviour loop
-		if (tot_distance == correct_initial_distance) {
-			instant_tick_l = tick_l;
-			instant_tick_r = tick_r;
-			double displacement_l = dir_l * (double)instant_tick_l * MM_PER_TICK_L;
-			double displacement_r = dir_r * (double)instant_tick_r * MM_PER_TICK_R;
-			correct_elapsed_distance = (displacement_l + displacement_r) * 0.5;
-		}
-		else correct_elapsed_distance = tot_distance - correct_initial_distance;
-		
+				
 		// correct only if the 2 half distances are about the same
-		if (abs((tot_distance - correct_half_distance) - (correct_half_distance - correct_initial_distance)) < CORRECT_CROSSING_TOLERANCE) {
+		if (abs((current_distance() - correct_half_distance) - (correct_half_distance - correct_initial_distance)) < CORRECT_CROSSING_TOLERANCE) {
 			
+			// distance since when passive correct was activated
+			float correct_elapsed_distance = current_distance() - correct_initial_distance;
 			// always positive
 			float theta_offset = atan2(correct_elapsed_distance, SIDE_SENSOR_DISTANCE);
 
 			// reverse theta correction if direction is backwards
 			if (layers[get_active_layer()].speed < 0) theta_offset = -theta_offset; 
 
-			Serial.println(square_heading());
 			// assume whichever one passed first was the first to hit
 			if (passive_status & PASSED_LEFT) theta = (square_heading()*DEGS) + theta_offset;
 			else theta = (square_heading()*DEGS) - theta_offset;
 
-			Serial.println(theta_offset);
 			Serial.print('P');
 			Serial.println(passive_status, BIN);
 
 		}
 		// suspicious of an intersection
 		else {
-			Serial.println("pI");
+			Serial.print("pI");
+			Serial.print(current_distance() - correct_half_distance);
+			Serial.print(' ');
+			Serial.println(correct_half_distance - correct_initial_distance);
 		}
 
 		// reset even if not activated on this line (false alarm)
-		passive_status = PASSED_NONE;
+		passive_status = PASSED_COOL_DOWN;
 	}
 
 }
@@ -89,8 +96,6 @@ bool far_from_intersection(int xx, int yy) {
 }
 
 void passive_position_correct() {
-
-
 	if (on_line(CENTER)) {
 		++cycles_on_line;
 		// activate line following if close enough to target and is on a line

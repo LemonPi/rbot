@@ -18,21 +18,23 @@ void get_ball() {
 	get.angle = 0;
 	// go forward until ball is detected or arbitrary additional distance travelled
 	if (ball_status == BALL_LESS) {
-		if (tot_distance - get_initial_distance < GET_DISTANCE) get.speed = GET_SPEED;
+		if (!caught_ball()) get.speed = GET_SPEED;
 		else {
 			// then close servo gate
 			close_gate();
 			hard_break();
+			get_initial_distance = tot_distance;
 			ball_status = JUST_GOT_BALL;
 		}
 	}
 	// after securing ball, drive backwards for the same amount of distance
 	else if (ball_status == SECURED_BALL) {
+		get.speed = -GET_SPEED;
 		if (paused) resume_drive();
 		// back up until you hit a line to correct position
-		if (!on_line(CENTER)) get.speed = -GET_SPEED;
-		else {corrected_while_backing_up = true; correct_to_grid();}
+		if (on_line(CENTER)) {corrected_while_backing_up = true; correct_to_grid();}
 		
+		// backed up far enough
 		if (corrected_while_backing_up && tot_distance - get_initial_distance > 3*GET_DISTANCE) {
 		// after getting ball, return to rendezvous point
 			corrected_while_backing_up = false;
@@ -48,15 +50,32 @@ void get_ball() {
 }
 
 // hopper is defined by 3 pillar index
-void add_hopper(byte p1, byte p2, byte p3) {
+void add_hopper(byte p1, byte p2, byte p3, byte load) {
 	int px[3] = {x_lookup[p1 / 7], x_lookup[p2 / 7], x_lookup[p3 / 7]};
 	int py[3] = {y_lookup[p1 % 7], y_lookup[p2 % 7], y_lookup[p3 % 7]};
 
 	for (int i = 0; i < 3; ++i) {
 		add_boundary(px[i], py[i], PILLAR_RADIUS);
 	}
+
+	// manually set load
+	if (load != DEFAULT_LOAD) {
+		switch (boundary_num) {
+			case HOPPER1: hoppers[0].load = load; break;
+			case HOPPER2: hoppers[1].load = load; break;
+			case HOPPER3: hoppers[2].load = load; break;
+			case HOPPER4: hoppers[3].load = load; break;
+			default: break;
+		}
+	}
+
 	// pillar is a boundary
 	add_boundary((px[0]+px[1]+px[2])/3, (py[0]+py[1]+py[2])/3, HOPPER_RADIUS);
+
+}
+
+bool caught_ball() {
+	return digitalRead(ball_pin);
 }
 
 // propose a target for approaching the hopper

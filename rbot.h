@@ -8,6 +8,8 @@ struct Hopper {
 	byte index, load;
 };
 
+extern byte ball_pin;
+
 extern byte ball_status;
 extern bool getting_ball;
 extern Adafruit_TiCoServo gate;
@@ -31,13 +33,15 @@ extern byte center_status;
 extern float last_correct_distance;
 
 
-void initialize_rbot(byte servo_pin);
+void initialize_rbot(byte servo_pin, byte ball_proxity_pin);
 
 // get module
 void get_ball();
 void close_gate();
 
-void add_hopper(byte p1, byte p2, byte p3);
+bool caught_ball();
+
+void add_hopper(byte p1, byte p2, byte p3, byte load = DEFAULT_LOAD);
 Target approach_hopper(byte hopper);
 byte hopper_select(byte hopper, byte exclude = 200);
 
@@ -55,5 +59,5 @@ void passive_correct();
 void passive_position_correct();
 
 bool far_from_intersection(int candidate_x, int candidate_y);
-
+double current_distance();
 }

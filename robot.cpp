@@ -137,7 +137,8 @@ void initialize_robot(byte c1_l, byte c2_l, byte outpin_l, byte c1_r, byte c2_r,
 
 
 	drive = AUTOMATIC;
-	on = paused = false; 
+	on = false; 
+	paused = true;
 
 	// initial setup
 	for (byte l = 0; l < LAYER_NUM; ++l) layers[l].active = false;

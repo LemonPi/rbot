@@ -31,11 +31,11 @@ void put_ball() {
 
 
 void close_gate() {
-	gate.write(170);
+	gate.write(160);
 	Serial.println("cg");
 }
 void open_gate() {
-	gate.write(70);
+	gate.write(60);
 	Serial.println("og");
 }
 

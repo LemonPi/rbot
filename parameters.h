@@ -28,7 +28,7 @@ constexpr int SENSOR_TIME = 10;  // in ms, 5x faster than navigation cycles
 // maximum array bounds
 constexpr byte BOUNDARY_MAX = 14;
 constexpr byte TARGET_MAX = 10;
-constexpr byte SENSOR_MAX = 4;
+constexpr byte SENSOR_MAX = 3;
 
 // target types
 constexpr byte TARGET_NAV = 0;
@@ -38,11 +38,10 @@ constexpr byte TARGET_GET = 3;
 constexpr byte TARGET_PUT = 4;
 
 // sensor indices
-constexpr byte CENTER = B0001;		// center sensor is sensor 0
-constexpr byte LEFT = 	B0010;
-constexpr byte RIGHT = 	B0100;
-constexpr byte BALL = 	B1000;
-constexpr float SIDE_SENSOR_DISTANCE = 43.5;
+constexpr byte CENTER = B001;		// center sensor is sensor 0
+constexpr byte LEFT = 	B010;
+constexpr byte RIGHT = 	B100;
+constexpr float SIDE_SENSOR_DISTANCE = 52;
 
 
 // PID speed control
@@ -75,7 +74,6 @@ constexpr float THETA_TOLERANCE = 0.03;	// around 3 degree turning
 
 constexpr int ANY_THETA = 9000;	// if no target is set
 
-constexpr int TURNING_IN_PLACE = 8000;
 constexpr float CAN_TURN_IN_PLACE = 0.5; // minimum angle to activate turning in place
 
 
@@ -96,6 +94,7 @@ constexpr byte HOPPER1 = 3;
 constexpr byte HOPPER2 = 7;
 constexpr byte HOPPER3 = 10;
 constexpr byte HOPPER4 = 13;
+constexpr byte DEFAULT_LOAD = 8;
 
 constexpr float PILLAR_RADIUS = 24.15;
 constexpr float HOPPER_RADIUS = 20.55;
@@ -120,11 +119,11 @@ constexpr int DIR_BACK = 180;
 
 
 // correction
-constexpr int CORRECT_SPEED = 10;			// one wheel travels at 0 and the other 2*CORRECT_SPEED
 constexpr byte INTERSECTION_TOO_CLOSE = 40;	// allowed range [50,150] for x and y for a correct
-constexpr int CORRECT_TOO_FAR = 40;	// correct theta by the distance before all 3 crosses the line
-constexpr float CORRECT_CROSSING_TOLERANCE = 4;	// accepted difference in distance travelled between the 2 halves of crossing a line
+constexpr int CORRECT_TOO_FAR = SIDE_SENSOR_DISTANCE;	// correct theta by the distance before all 3 crosses the line
+constexpr float CORRECT_CROSSING_TOLERANCE = SIDE_SENSOR_DISTANCE / 6;	// accepted difference in distance travelled between the 2 halves of crossing a line
 
+constexpr int PASSED_COOL_DOWN = -20;
 constexpr int PASSED_NONE = 0;
 constexpr int PASSED_LEFT = LEFT << 3;
 constexpr int PASSED_RIGHT = RIGHT << 3;
