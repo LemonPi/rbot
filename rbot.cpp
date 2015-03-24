@@ -69,7 +69,7 @@ void user_waypoint() {
 			add_target(min_target.x, min_target.y, min_target.theta, TARGET_GET, true);
 			// anticipate decreasing the selected hopper's load (can't easily do that at the point of getting)
 			--hoppers[selected_hopper].load;
-			Serial.println('g');
+			SERIAL_PRINTLN('g');
 		}
 	}
 }

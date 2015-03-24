@@ -70,8 +70,8 @@ void indicate_sensors() {
 
 void calibrate() {
 	if (sensor_num != SENSOR_MAX) {
-		Serial.print("Not all sensors added: "); 
-		Serial.println(sensor_num); 
+		SERIAL_PRINT("Not all sensors added: "); 
+		SERIAL_PRINTLN(sensor_num); 
 		return;
 	}
 

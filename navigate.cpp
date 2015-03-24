@@ -36,7 +36,7 @@ void hard_turn() {
 
 	// turn until theta ~= target_theta
 	if (abs(to_turn) < THETA_TOLERANCE) {
-		Serial.println("dt");
+		SERIAL_PRINTLN("dt");
 		waypoint();
 		return;
 	}
@@ -76,8 +76,8 @@ void navigate() {
 		layers[LAYER_TURN].active = true;
 		nav.active = false;
 
-		Serial.print("t ");
-		Serial.println((int)(heading_error*RADS));
+		SERIAL_PRINT("t ");
+		SERIAL_PRINTLN((int)(heading_error*RADS));
 		
 	}
 
@@ -85,7 +85,7 @@ void navigate() {
 	else if (((target_distance < TARGET_IMMEDIATE) ||
 			 ((target_distance < TARGET_CIRCLE) && (target_distance > last_target_distance)))) {
 
-		Serial.println('c');
+		SERIAL_PRINTLN('c');
 		nav.active = false;	// no longer need to navigate	
 
 		if (abs(targets[target].theta - ANY_THETA) > 1 && 	// target isn't just any theta
@@ -94,7 +94,7 @@ void navigate() {
 		}
 		// don't need to turn anymore
 		else {
-			Serial.println('f');
+			SERIAL_PRINTLN('f');
 			waypoint();
 		}
 	}
@@ -133,7 +133,7 @@ void locate_target() {
 // arrived at target, called at the end of other behaviours
 // decides what behaviours to enable based on game and current state
 void waypoint() {
-	Serial.println('w');
+	SERIAL_PRINTLN('w');
 	// other targets to reach, lower stack index, reprocess
 	if (target > 0) { 
 		--target; 

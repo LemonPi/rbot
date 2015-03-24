@@ -180,7 +180,7 @@ void hard_break() {
 	paused = true;
 	l.stop(); 
 	r.stop();
-	Serial.println('h');
+	SERIAL_PRINTLN('h');
 }
 void resume_drive() {
 	paused = false;

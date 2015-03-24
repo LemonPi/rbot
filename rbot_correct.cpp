@@ -23,7 +23,7 @@ void passive_correct() {
 	// check if center one first activated; halfway there
 	if (on_line(CENTER) && !(passive_status & CENTER)) {
 		correct_half_distance = current_distance();
-		Serial.println("pH");
+		SERIAL_PRINTLN("pH");
 	}
 
 	// activate passive correct when either left or right sensor FIRST ACTIVATES
@@ -32,15 +32,15 @@ void passive_correct() {
 		correct_initial_distance = current_distance();
 		// only look at RIGHT LEFT CENTER
 		passive_status |= (on_lines & B111);
-		Serial.print('p');
-		Serial.println(passive_status, BIN);
+		SERIAL_PRINT('p');
+		SERIAL_PRINTLN(passive_status, BIN);
 		return;
 	}
 
 	// travelling too parallel to line and passed some lines
 	if (passive_status != PASSED_NONE && tot_distance - correct_initial_distance > CORRECT_TOO_FAR) {
 		passive_status = PASSED_COOL_DOWN;
-		Serial.print("pP");
+		SERIAL_PRINT("pP");
 		return;
 	}
 
@@ -70,16 +70,16 @@ void passive_correct() {
 			if (passive_status & PASSED_LEFT) theta = (square_heading()*DEGS) + theta_offset;
 			else theta = (square_heading()*DEGS) - theta_offset;
 
-			Serial.print('P');
-			Serial.println(passive_status, BIN);
+			SERIAL_PRINT('P');
+			SERIAL_PRINTLN(passive_status, BIN);
 
 		}
 		// suspicious of an intersection
 		else {
-			Serial.print("pI");
-			Serial.print(current_distance() - correct_half_distance);
-			Serial.print(' ');
-			Serial.println(correct_half_distance - correct_initial_distance);
+			SERIAL_PRINT("pI");
+			SERIAL_PRINT(current_distance() - correct_half_distance);
+			SERIAL_PRINT(' ');
+			SERIAL_PRINTLN(correct_half_distance - correct_initial_distance);
 		}
 
 		// reset even if not activated on this line (false alarm)
@@ -108,11 +108,11 @@ void passive_position_correct() {
 			// correct whichever one is closer to 0 or 200 
 			correct_to_grid();
 
-			Serial.println('C');
+			SERIAL_PRINTLN('C');
 		}
 		else {
 			++counted_lines;
-			Serial.println('L');
+			SERIAL_PRINTLN('L');
 		}
 		cycles_on_line = 0;
 	}

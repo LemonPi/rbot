@@ -1,7 +1,16 @@
 #pragma once
 #include <Arduino.h>
 
+#ifdef DEBUGGING
+	#define SERIAL_PRINT(...) Serial.print(__VA_ARGS__);
+	#define SERIAL_PRINTLN(...) Serial.println(__VA_ARGS__);
+#else
+	#define SERIAL_PRINT(...) ;
+	#define SERIAL_PRINTLN(...) ;
+#endif
+
 namespace robot {
+
 // mathematical constants
 constexpr float TWOPI = 6.2831853070;
 constexpr float HALFPI = 1.5707963268;
