@@ -163,11 +163,11 @@ bool is_intersection(int x, int y) {
 }
 
 void start() {
+	resume_drive();
 	on = true;
 	tick_l = tick_r = 0;
 	if (target != NONE_ACTIVE) layers[LAYER_NAV].active = true;
 	else waypoint();
-	resume_drive();
 	user_start();
 }
 
@@ -180,7 +180,7 @@ void hard_break() {
 	paused = true;
 	l.stop(); 
 	r.stop();
-	SERIAL_PRINTLN('h');
+	SERIAL_PRINTLN('h');	// hard break
 }
 void resume_drive() {
 	paused = false;
@@ -188,6 +188,7 @@ void resume_drive() {
 	else l.backward();
 	if (dir_r == FORWARD) r.forward();
 	else r.backward();
+	SERIAL_PRINTLN('r');	// resume
 }
 
 void pid_control(int tl, int tr) {

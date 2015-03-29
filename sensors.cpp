@@ -34,6 +34,14 @@ void correct_to_grid() {
 	}
 }
 
+bool far_from_intersection(int xx, int yy) {
+	byte offset_x = abs((int)xx) % GRID_WIDTH;
+	byte offset_y = abs((int)yy) % GRID_WIDTH;
+	return (offset_x < INTERSECTION_TOO_CLOSE || offset_x > GRID_WIDTH - INTERSECTION_TOO_CLOSE) ^
+			(offset_y < INTERSECTION_TOO_CLOSE || offset_y > GRID_WIDTH - INTERSECTION_TOO_CLOSE);	
+}
+
+
 // round angle to multiples of 90
 int square_heading() {
 	return round(theta*RADS / 90) * 90;
@@ -76,9 +84,9 @@ void calibrate() {
 	}
 
     int lows[SENSOR_MAX];
-    int highs[SENSOR_MAX] = {0};
+    int highs[SENSOR_MAX];
     int readings[SENSOR_MAX];
-    for (byte pin = 0; pin < SENSOR_MAX; ++pin) lows[pin] = 1023;
+    for (byte pin = 0; pin < SENSOR_MAX; ++pin) {highs[pin] = 0; lows[pin] = 1023;}
 
     unsigned long calibrate_start = millis();
     // calibrate all the pins

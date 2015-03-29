@@ -15,27 +15,33 @@ void get_ball() {
 	if (!get.active) return;
 
 	// either going forward or backward, always no angle
-	get.angle = 0;
 	// go forward until ball is detected or arbitrary additional distance travelled
-	if (ball_status == BALL_LESS) {
-		if (!caught_ball()) get.speed = GET_SPEED;
-		else {
+	if (ball_status < CAUGHT_BALL) {
+		if (caught_ball()) ++ball_status;
+
+		get.speed = GET_SPEED;
+		if (abs(boundaries[active_hopper].theta) < THETA_TOLERANCE) get.angle = 0;
+		// turn slightly to face hopper
+		else if (boundaries[active_hopper].theta < 0) get.angle = -GET_TURN;
+		else get.angle = GET_TURN;
+
+		if (ball_status == CAUGHT_BALL) {
 			// then close servo gate
 			close_gate();
 			hard_break();
 			get_initial_distance = tot_distance;
-			ball_status = JUST_GOT_BALL;
 		}
 	}
 	// after securing ball, drive backwards for the same amount of distance
 	else if (ball_status == SECURED_BALL) {
 		get.speed = -GET_SPEED;
+		get.angle = 0;
 		if (paused) resume_drive();
 		// back up until you hit a line to correct position
 		if (on_line(CENTER)) {corrected_while_backing_up = true; correct_to_grid();}
 		
 		// backed up far enough
-		if (corrected_while_backing_up && tot_distance - get_initial_distance > 3*GET_DISTANCE) {
+		if (corrected_while_backing_up && tot_distance - get_initial_distance > 5*GET_DISTANCE) {
 		// after getting ball, return to rendezvous point
 			corrected_while_backing_up = false;
 			layers[LAYER_GET].active = false;
@@ -86,8 +92,8 @@ Target approach_hopper(byte hopper) {
 		double mid_point_x = (boundaries[hopper-1].x + boundaries[hopper-2].x)/2;
 		double mid_point_y = (boundaries[hopper-1].y + boundaries[hopper-2].y)/2;
 		// from center point to the hopper
-		double off_x = boundaries[hopper].x - mid_point_x;
-		double off_y = boundaries[hopper].y - mid_point_y;
+		double off_x = APPROACH_SCALAR * boundaries[hopper].x - mid_point_x;
+		double off_y = APPROACH_SCALAR * boundaries[hopper].y - mid_point_y;
 
 		return Target{mid_point_x - off_x, mid_point_y - off_y, atan2(off_y, off_x)};
 	}
@@ -103,8 +109,8 @@ Target approach_hopper(byte hopper) {
 			safe_target = true;
 			byte max_index = hopper_select(hopper, exclude_pillar);
 			// offset vector from hopper
-			off_x = boundaries[max_index].x - boundaries[hopper].x;
-			off_y = boundaries[max_index].y - boundaries[hopper].y;
+			off_x = APPROACH_SCALAR * (boundaries[max_index].x - boundaries[hopper].x);
+			off_y = APPROACH_SCALAR * (boundaries[max_index].y - boundaries[hopper].y);
 
 			candidate_x = boundaries[hopper].x - off_x;
 			candidate_y = boundaries[hopper].y - off_y;

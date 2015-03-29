@@ -3,58 +3,52 @@
 
 namespace robot {
 
-double current_distance() {
-	// accumulate current ticks
-	instant_tick_l = tick_l;
-	instant_tick_r = tick_r;
-	double displacement_l = dir_l * (double)instant_tick_l * MM_PER_TICK_L;
-	double displacement_r = dir_r * (double)instant_tick_r * MM_PER_TICK_R;
-
-	return tot_distance + abs(displacement_l + displacement_r)*0.5;	
-}
-
 // correct passing a line not too close to an intersection
 void passive_correct() {
 
-	if (!far_from_intersection(x, y)) return;
 	// still on cool down
-	else if (passive_status < PASSED_NONE) {++passive_status; return;}
+	if (passive_status < PASSED_NONE) {++passive_status; return;}
+	if (!far_from_intersection(x, y)) return;
 
 	// check if center one first activated; halfway there
 	if (on_line(CENTER) && !(passive_status & CENTER)) {
 		correct_half_distance = current_distance();
-		SERIAL_PRINTLN("pH");
+		SERIAL_PRINTLN("PH");
 	}
 
 	// activate passive correct when either left or right sensor FIRST ACTIVATES
 	if ((on_line(LEFT) || on_line(RIGHT)) && passive_status == PASSED_NONE) {
-
 		correct_initial_distance = current_distance();
 		// only look at RIGHT LEFT CENTER
-		passive_status |= (on_lines & B111);
-		SERIAL_PRINT('p');
+		passive_status |= (on_lines & ENCOUNTERED_ALL);
+		SERIAL_PRINT("PS");
 		SERIAL_PRINTLN(passive_status, BIN);
-		return;
+
+		// all hit at the same time, don't know heading
+		if (passive_status == ENCOUNTERED_ALL) hit_first = CENTER;
+		else if (passive_status & LEFT) hit_first = LEFT;
+		else hit_first = RIGHT;
+		
+		// return;
 	}
+
+	if ((passive_status & LEFT) && !on_line(LEFT)) passive_status |= PASSED_LEFT;
+	if ((passive_status & RIGHT) && !on_line(RIGHT)) passive_status |= PASSED_RIGHT;
 
 	// travelling too parallel to line and passed some lines
 	if (passive_status != PASSED_NONE && tot_distance - correct_initial_distance > CORRECT_TOO_FAR) {
 		passive_status = PASSED_COOL_DOWN;
-		SERIAL_PRINT("pP");
+		SERIAL_PRINT("PP");
+		SERIAL_PRINTLN(current_distance() - correct_initial_distance);
 		return;
 	}
 
 	// check if encountering any additional lines
-	passive_status |= (on_lines & B111);
-
-	// passing each line
-	if (!on_line(LEFT) && (passive_status & LEFT)) passive_status |= PASSED_LEFT;
-	if (!on_line(RIGHT) && (passive_status & RIGHT)) passive_status |= PASSED_RIGHT;
-
-	// correct when 1 fully passed and the other one just activated
-	if (((passive_status & PASSED_LEFT_RIGHT) == PASSED_LEFT_RIGHT) ||
-		((passive_status & PASSED_RIGHT_LEFT) == PASSED_RIGHT_LEFT)) {
+	passive_status |= (on_lines & ENCOUNTERED_ALL);
 				
+	// correct at the first encounter of line for each sensor
+	if ((passive_status & ENCOUNTERED_ALL) == ENCOUNTERED_ALL) {
+
 		// correct only if the 2 half distances are about the same
 		if (abs((current_distance() - correct_half_distance) - (correct_half_distance - correct_initial_distance)) < CORRECT_CROSSING_TOLERANCE) {
 			
@@ -63,20 +57,31 @@ void passive_correct() {
 			// always positive
 			float theta_offset = atan2(correct_elapsed_distance, SIDE_SENSOR_DISTANCE);
 
+			// theta offset should never be beyond a reasonable limit
+			if (theta_offset > THETA_CORRECT_LIMIT) {
+				// SERIAL_PRINT("PO");
+				// SERIAL_PRINTLN(theta_offset);
+				return;
+			}
+
 			// reverse theta correction if direction is backwards
 			if (layers[get_active_layer()].speed < 0) theta_offset = -theta_offset; 
 
 			// assume whichever one passed first was the first to hit
 			if (passive_status & PASSED_LEFT) theta = (square_heading()*DEGS) + theta_offset;
-			else theta = (square_heading()*DEGS) - theta_offset;
+			else if (passive_status & PASSED_RIGHT) theta = (square_heading()*DEGS) - theta_offset;
+			else if (hit_first == LEFT) theta = (square_heading()*DEGS) + theta_offset;
+			else if (hit_first == RIGHT) theta = (square_heading()*DEGS) - theta_offset;
+			// hit at the same time?
+			else theta = (square_heading()*DEGS);
 
 			SERIAL_PRINT('P');
-			SERIAL_PRINTLN(passive_status, BIN);
+			SERIAL_PRINTLN(theta_offset);
 
 		}
 		// suspicious of an intersection
 		else {
-			SERIAL_PRINT("pI");
+			SERIAL_PRINT("PI");
 			SERIAL_PRINT(current_distance() - correct_half_distance);
 			SERIAL_PRINT(' ');
 			SERIAL_PRINTLN(correct_half_distance - correct_initial_distance);
@@ -86,13 +91,6 @@ void passive_correct() {
 		passive_status = PASSED_COOL_DOWN;
 	}
 
-}
-
-bool far_from_intersection(int xx, int yy) {
-	byte offset_x = abs((int)xx) % GRID_WIDTH;
-	byte offset_y = abs((int)yy) % GRID_WIDTH;
-	return (offset_x < INTERSECTION_TOO_CLOSE || offset_x > GRID_WIDTH - INTERSECTION_TOO_CLOSE) ^
-			(offset_y < INTERSECTION_TOO_CLOSE || offset_y > GRID_WIDTH - INTERSECTION_TOO_CLOSE);	
 }
 
 void passive_position_correct() {
@@ -106,7 +104,15 @@ void passive_position_correct() {
 		else if (counted_lines >= LINES_PER_CORRECT && far_from_intersection(x, y)) {
 			counted_lines = 0;
 			// correct whichever one is closer to 0 or 200 
-			correct_to_grid();
+			// account for red line, can't detect along y so just correct to x
+			if (abs(y - RENDEZVOUS_Y) < 0.5*GRID_WIDTH) {
+				int offset_x = abs((int)x) % GRID_WIDTH;
+				x = round(x / GRID_WIDTH) * GRID_WIDTH;
+				// leaving line forward
+				if (theta > -HALFPI && theta < HALFPI) x += HALF_LINE_WIDTH;
+				else x -= HALF_LINE_WIDTH;
+			}
+			else correct_to_grid();
 
 			SERIAL_PRINTLN('C');
 		}

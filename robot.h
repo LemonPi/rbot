@@ -10,7 +10,7 @@ struct Layer {
 	// speed and angle in units of ticks/cycle
 	int speed, angle, active;
 };
-// each location has x and y coordinates
+// each boundary has x, y, radius, distance away, heading error (theta), and threat
 struct Boundary {
 	double x, y, r, distance, theta, threat;
 };
@@ -120,7 +120,6 @@ int add_target(double tx, double ty, double td = ANY_THETA, byte type = TARGET_N
 int add_boundary(double bx, double by, double radius = 0);	// by default a point
 int add_sensor(byte sensor_pin, byte indicator_pin = -1);	// -1 means no indicator associated with sensor
 
-
 bool go();	// base user to be called in loop
 bool correct(); // correct lines to be called in a loop
 
@@ -129,6 +128,7 @@ void calibrate();
 void indicate_sensors();
 void correct_to_grid();
 int square_heading();
+bool far_from_intersection(int candidate_x, int candidate_y);
 
 
 // retrieve information from the robot
@@ -145,6 +145,7 @@ int get_direction_r();
 
 double get_target_distance();
 double get_heading_error();
+double current_distance();
 
 
 int get_boundary_num();

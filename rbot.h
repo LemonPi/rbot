@@ -1,4 +1,5 @@
 #include <Adafruit_TiCoServo.h>
+#include <keypad_input.h>
 #include "parameters.h"
 #include "robot.h"
 
@@ -15,6 +16,8 @@ extern bool getting_ball;
 extern Adafruit_TiCoServo gate;
 extern float get_initial_distance;
 extern Hopper hoppers[HOPPER_NUM];
+extern byte active_hopper;
+extern byte hit_first;
 
 extern int cycles_on_line, counted_lines;
 extern bool corrected_while_backing_up;
@@ -25,7 +28,6 @@ extern float correct_half_distance;
 
 
 extern int cycles_on_line, counted_lines;
-extern int hit_first;
 // number of lines crossed
 extern int left_crossed, right_crossed;
 extern byte center_status;
@@ -58,6 +60,4 @@ void open_gate();
 void passive_correct();
 void passive_position_correct();
 
-bool far_from_intersection(int candidate_x, int candidate_y);
-double current_distance();
 }

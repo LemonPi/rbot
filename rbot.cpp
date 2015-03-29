@@ -10,6 +10,8 @@ byte ball_status = BALL_LESS;
 float get_initial_distance;
 Adafruit_TiCoServo gate;
 int cycles_on_line, counted_lines;
+byte active_hopper;
+byte hit_first;
 
 bool corrected_while_backing_up;
 
@@ -49,7 +51,7 @@ void user_waypoint() {
 		float distance;
 		Target min_target;
 		Target cur_target;
-		// hopper number, at the end of the loop will be the one to select
+		// active_hopper is the hopper number, at the end of the loop will be the one to select
 		byte selected_hopper;
 		// load of hopper needs to be > 0 for it to be considered
 		for (byte h = 0; hoppers[h].index < boundary_num && h < HOPPER_NUM && hoppers[h].load > 0; ++h) {
@@ -69,6 +71,7 @@ void user_waypoint() {
 			add_target(min_target.x, min_target.y, min_target.theta, TARGET_GET, true);
 			// anticipate decreasing the selected hopper's load (can't easily do that at the point of getting)
 			--hoppers[selected_hopper].load;
+			active_hopper = hoppers[selected_hopper].index;
 			SERIAL_PRINTLN('g');
 		}
 	}
@@ -83,6 +86,7 @@ void initialize_rbot(byte servo_pin, byte ball_proximity_pin) {
 	counted_lines = 0;
 	passive_status = PASSED_NONE;
 	ball_status = BALL_LESS;
+	active_hopper = 0;
 	corrected_while_backing_up = false;
 	gate.attach(servo_pin);
 	open_gate();

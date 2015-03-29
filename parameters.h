@@ -1,5 +1,6 @@
 #pragma once
 #include <Arduino.h>
+#define DEBUGGING
 
 #ifdef DEBUGGING
 	#define SERIAL_PRINT(...) Serial.print(__VA_ARGS__);
@@ -47,9 +48,9 @@ constexpr byte TARGET_GET = 3;
 constexpr byte TARGET_PUT = 4;
 
 // sensor indices
-constexpr byte CENTER = B001;		// center sensor is sensor 0
-constexpr byte LEFT = 	B010;
-constexpr byte RIGHT = 	B100;
+constexpr byte RIGHT = 	B001;
+constexpr byte CENTER = B010;		// center sensor is sensor 0
+constexpr byte LEFT = 	B100;
 constexpr float SIDE_SENSOR_DISTANCE = 52;
 
 
@@ -70,7 +71,7 @@ constexpr float KD = 0.005;
 constexpr int TPR = 1200;
 
 constexpr int TOP_SPEED = 45; 	// in ticks per cycle 
-constexpr int MIN_SPEED = 20;
+constexpr int MIN_SPEED = 15;
 constexpr int START_SPEED = 45;
 
 
@@ -109,13 +110,14 @@ constexpr float PILLAR_RADIUS = 24.15;
 constexpr float HOPPER_RADIUS = 20.55;
 constexpr int COLONY_RADIUS = 150;		// including the 3 pillars
 constexpr float OTHER_HOPPER_TOO_CLOSE = COLONY_RADIUS + TURNING_RADIUS + 100;	// how close the target can be to another hopper
+constexpr float APPROACH_SCALAR = 2;
 
 
 // line detecting sensors
 constexpr int CALLIBRATION_TIME = 5000;	// 5s
 constexpr int THRESHOLD_TOLERANCE = 3;
-constexpr int LINE_WIDTH = 9; 			// about 1cm
-constexpr float HALF_LINE_WIDTH = 4.5;
+constexpr int LINE_WIDTH = 6;			// about 1cm
+constexpr float HALF_LINE_WIDTH = 3;
 constexpr int GRID_WIDTH = 200;			// grid spaced about 200mm apart
 constexpr int CYCLES_CROSSING_LINE = 2; 	// cycles on line for false positive to fail
 constexpr int LINES_PER_CORRECT = 0;	// how many lines to cross before correcting; 0 is every line
@@ -131,25 +133,28 @@ constexpr int DIR_BACK = 180;
 constexpr byte INTERSECTION_TOO_CLOSE = 40;	// allowed range [50,150] for x and y for a correct
 constexpr int CORRECT_TOO_FAR = SIDE_SENSOR_DISTANCE;	// correct theta by the distance before all 3 crosses the line
 constexpr float CORRECT_CROSSING_TOLERANCE = SIDE_SENSOR_DISTANCE / 6;	// accepted difference in distance travelled between the 2 halves of crossing a line
+constexpr float THETA_CORRECT_LIMIT = 0.7;	// don't correct if offset > 40 degrees
 
-constexpr int PASSED_COOL_DOWN = -20;
+constexpr int PASSED_COOL_DOWN = -40;
 constexpr int PASSED_NONE = 0;
 constexpr int PASSED_LEFT = LEFT << 3;
 constexpr int PASSED_RIGHT = RIGHT << 3;
-constexpr int PASSED_LEFT_RIGHT = B010101;	// left passed, right active, center active
-constexpr int PASSED_RIGHT_LEFT = B100011;	// right passed, left active, center active
+constexpr int ENCOUNTERED_ALL = B111;
 
 
 
 // getting the ball
-constexpr int RENDEZVOUS_X = 1400;
-constexpr int RENDEZVOUS_Y = 800;
+constexpr int RENDEZVOUS_X = 1200;
+constexpr int RENDEZVOUS_Y = 600;
 constexpr int RENDEZVOUS_CLOSE = 40;	// within 4cm of rendezvous
 constexpr float GET_DISTANCE = 50;
-constexpr int GET_SPEED = 0.5*TOP_SPEED;
+constexpr int GET_SPEED = 0.7*TOP_SPEED;
+constexpr int GET_TURN = 10;
+
 // ball statuses
 constexpr byte BALL_LESS = 0;
 constexpr byte JUST_GOT_BALL = 1;
-constexpr byte SECURED_BALL = 15;	// cycles of gate closing
+constexpr byte CAUGHT_BALL = 5;
+constexpr byte SECURED_BALL = 25;	// cycles of gate closing
 
 }
