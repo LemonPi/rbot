@@ -1,5 +1,4 @@
 #include <Adafruit_TiCoServo.h>
-#include <keypad_input.h>
 #include "parameters.h"
 #include "robot.h"
 
@@ -59,5 +58,6 @@ void open_gate();
 // correct theta at lines
 void passive_correct();
 void passive_position_correct();
+void correct_to_hopper();
 
 }

@@ -26,6 +26,8 @@ void get_ball() {
 		else get.angle = GET_TURN;
 
 		if (ball_status == CAUGHT_BALL) {
+			// got to the ball, can also correct for position to be near hopper
+			correct_to_hopper();
 			// then close servo gate
 			close_gate();
 			hard_break();

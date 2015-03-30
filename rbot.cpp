@@ -55,6 +55,9 @@ void user_waypoint() {
 		byte selected_hopper;
 		// load of hopper needs to be > 0 for it to be considered
 		for (byte h = 0; hoppers[h].index < boundary_num && h < HOPPER_NUM && hoppers[h].load > 0; ++h) {
+			// alternate between closest 2 hoppers
+			// if (hoppers[h].index == active_hopper) continue;
+
 			cur_target = approach_hopper(hoppers[h].index);
 			distance = sqrt(sq(x - cur_target.x) + sq(y - cur_target.y));
 			// find a close hopper

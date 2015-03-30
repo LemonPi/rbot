@@ -124,4 +124,18 @@ void passive_position_correct() {
 	}
 }
 
+void correct_to_hopper() {
+	// extend theta backwards by the distance between the hopper and the center of the robot 
+	float correct_x = boundaries[active_hopper].x - cos(theta)*BETWEEN_HOPPER_AND_CENTER;
+	float correct_y = boundaries[active_hopper].y - sin(theta)*BETWEEN_HOPPER_AND_CENTER;
+	if (abs(correct_x - x) > NEED_TO_HOPPER_CORRECT) {
+		SERIAL_PRINTLN("HX");
+		x = correct_x;
+	}
+	if (abs(correct_y - y) > NEED_TO_HOPPER_CORRECT) {
+		SERIAL_PRINTLN("HY");
+		y = correct_y;
+	}
+}
+
 }	// end namespace

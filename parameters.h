@@ -59,6 +59,7 @@ constexpr int FORWARD = 1;
 constexpr int BACKWARD = -1;
 
 constexpr float BASE_WIDTH = 99.0;
+constexpr float BETWEEN_HOPPER_AND_CENTER = 80;
 constexpr float TURNING_RADIUS = BASE_WIDTH;
 constexpr float RECIPROCAL_BASE_WIDTH = 0.01004009;	// using reciprocal due to faster multiply than divide
 constexpr float MM_PER_TICK_L = 0.1714829559*1000/1045;
@@ -134,6 +135,7 @@ constexpr byte INTERSECTION_TOO_CLOSE = 40;	// allowed range [50,150] for x and 
 constexpr int CORRECT_TOO_FAR = SIDE_SENSOR_DISTANCE;	// correct theta by the distance before all 3 crosses the line
 constexpr float CORRECT_CROSSING_TOLERANCE = SIDE_SENSOR_DISTANCE / 6;	// accepted difference in distance travelled between the 2 halves of crossing a line
 constexpr float THETA_CORRECT_LIMIT = 0.7;	// don't correct if offset > 40 degrees
+constexpr float NEED_TO_HOPPER_CORRECT = 50;
 
 constexpr int PASSED_COOL_DOWN = -40;
 constexpr int PASSED_NONE = 0;
@@ -145,7 +147,7 @@ constexpr int ENCOUNTERED_ALL = B111;
 
 // getting the ball
 constexpr int RENDEZVOUS_X = 1200;
-constexpr int RENDEZVOUS_Y = 600;
+constexpr int RENDEZVOUS_Y = 800;
 constexpr int RENDEZVOUS_CLOSE = 40;	// within 4cm of rendezvous
 constexpr float GET_DISTANCE = 50;
 constexpr int GET_SPEED = 0.7*TOP_SPEED;

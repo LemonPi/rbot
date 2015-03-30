@@ -29,7 +29,7 @@ void hard_turn() {
 	turn.speed = 0;				// turn in place, no translational velocity
 	if (!turn.active || target == NONE_ACTIVE) { turn.angle = 0; return; }
 
-	double to_turn = targets[target].theta - theta;
+	to_turn = targets[target].theta - theta;
 	// would be faster to turn in the opposite direction 
 	if (to_turn > PI) to_turn -= TWOPI;
 	else if (to_turn < -PI) to_turn += TWOPI;
