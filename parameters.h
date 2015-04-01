@@ -38,7 +38,7 @@ constexpr int SENSOR_TIME = 10;  // in ms, 5x faster than navigation cycles
 // maximum array bounds
 constexpr byte BOUNDARY_MAX = 14;
 constexpr byte TARGET_MAX = 10;
-constexpr byte SENSOR_MAX = 3;
+constexpr byte SENSOR_MAX = 4;
 
 // target types
 constexpr byte TARGET_NAV = 0;
@@ -48,15 +48,19 @@ constexpr byte TARGET_GET = 3;
 constexpr byte TARGET_PUT = 4;
 
 // sensor indices
-constexpr byte RIGHT = 	B001;
-constexpr byte CENTER = B010;		// center sensor is sensor 0
-constexpr byte LEFT = 	B100;
+constexpr byte RIGHT = 	B0001;
+constexpr byte CENTER = B0010;		// center sensor is sensor 0
+constexpr byte LEFT = 	B0100;
+constexpr byte RED = 	B1000;
 constexpr float SIDE_SENSOR_DISTANCE = 52;
 
 
 // PID speed control
-constexpr int FORWARD = 1;
-constexpr int BACKWARD = -1;
+constexpr char FORWARD = 1;
+constexpr char BACKWARD = -1;
+constexpr char START_DRIFT = 1;	// how many cycles to account for drifting by using previous direction
+constexpr char NO_DRIFT = 0;
+constexpr int DRIFT_SPEED = 15;	// how fast of a speed change to start accounting for drift
 
 constexpr float BASE_WIDTH = 99.0;
 constexpr float BETWEEN_HOPPER_AND_CENTER = 80;

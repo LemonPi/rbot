@@ -15,6 +15,8 @@ int add_target(double tx, double ty, double td, byte type, bool rad) {
 	++target;
 	targets[target].x = tx;
 	targets[target].y = ty;
+	if (td < -PI) td += TWOPI;
+	else if (td > PI) td -= TWOPI;
 	targets[target].theta = td;
 	targets[target].type = type;
 	layers[LAYER_NAV].active = true;

@@ -52,7 +52,7 @@ extern int process_cycles;
 // motor control output hbridges
 extern Hbridge l, r;		
 // 1 for forward, -1 for backward
-extern int dir_l, dir_r;
+extern char dir_l, dir_r;
 
 // line detection for navigation correction
 extern unsigned long time_prev_sensors;

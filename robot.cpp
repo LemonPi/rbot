@@ -36,7 +36,7 @@ int process_cycles;
 // motor control output hbridges
 Hbridge l, r;		
 // 1 for forward, -1 for backward
-int dir_l, dir_r;
+char dir_l, dir_r;
 
 // line detection for navigation correction
 unsigned long time_prev_sensors;
@@ -245,7 +245,6 @@ void odometry() {
 
 	// update internal position
 	// displacements in mm
-	if (drive == MANUAL) {dir_l = dir_r = FORWARD;}
 	double displacement_l = dir_l * (double)instant_tick_l * MM_PER_TICK_L;
 	double displacement_r = dir_r * (double)instant_tick_r * MM_PER_TICK_R;
 	double displacement = (displacement_l + displacement_r) * 0.5;
@@ -272,6 +271,7 @@ void motor_control(byte layer) {
 	if (target_l < 0) {
 		target_l = -target_l;
 		if (dir_l == FORWARD) {
+			// store change of direction so that drift is accounted for
 			dir_l = BACKWARD;
 			l.backward();
 		}

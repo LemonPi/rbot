@@ -5,11 +5,13 @@
 namespace robot {
 
 byte ball_pin;
+byte bottom_led;
 
 byte ball_status = BALL_LESS;
 float get_initial_distance;
 Adafruit_TiCoServo gate;
 int cycles_on_line, counted_lines;
+int cycles_on_red_line;
 byte active_hopper;
 byte hit_first;
 
@@ -81,11 +83,14 @@ void user_waypoint() {
 }
 
 
-void initialize_rbot(byte servo_pin, byte ball_proximity_pin) {
+void initialize_rbot(byte servo_pin, byte ball_proximity_pin, byte bot_led) {
 	ball_pin = ball_proximity_pin;
 	pinMode(ball_pin, INPUT);
+	bottom_led = bot_led;
+	pinMode(bot_led, OUTPUT);
 	
 	cycles_on_line = 0;	// counter for continuous cycles on line
+	cycles_on_red_line = 0;
 	counted_lines = 0;
 	passive_status = PASSED_NONE;
 	ball_status = BALL_LESS;
@@ -97,6 +102,7 @@ void initialize_rbot(byte servo_pin, byte ball_proximity_pin) {
 
 void user_start() {
 	cycles_on_line = 0;
+	cycles_on_red_line = 0;
 	counted_lines = 0;
 	corrected_while_backing_up = false;
 	passive_status = PASSED_NONE;

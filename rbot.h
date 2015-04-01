@@ -9,6 +9,7 @@ struct Hopper {
 };
 
 extern byte ball_pin;
+extern byte bottom_led;
 
 extern byte ball_status;
 extern bool getting_ball;
@@ -19,6 +20,7 @@ extern byte active_hopper;
 extern byte hit_first;
 
 extern int cycles_on_line, counted_lines;
+extern int cycles_on_red_line;
 extern bool corrected_while_backing_up;
 
 extern int passive_status;
@@ -34,7 +36,7 @@ extern byte center_status;
 extern float last_correct_distance;
 
 
-void initialize_rbot(byte servo_pin, byte ball_proxity_pin);
+void initialize_rbot(byte servo_pin, byte ball_proxity_pin, byte bot_led);
 
 // get module
 void get_ball();
