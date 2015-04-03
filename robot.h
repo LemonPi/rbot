@@ -27,6 +27,7 @@ extern int instant_tick_l, instant_tick_r;
 // subsumption layers
 extern Layer layers[LAYER_NUM];
 extern byte active_layer;
+extern byte allowed_layers;
 
 // avoid boundaries (point boundaries)
 extern Boundary boundaries[BOUNDARY_MAX];
@@ -108,12 +109,15 @@ void user_start();
 // 3 pins each for hbridges, by default off and going forward
 void initialize_robot(byte c1_l, byte c2_l, byte outpin_l, byte c1_r, byte c2_r, byte outpin_r);
 
-void start();
-void stop();
-void hard_break();
-void resume_drive();
+void start(byte layer);
+void stop(byte layer);
+void hard_break(byte layer);
+void resume_drive(byte layer);
 
 byte get_active_layer();
+bool allowed_layer(byte layer);
+void enable_layer(byte layer);
+void disable_layer(byte layer);
 
 void set_coordinate(double tx, double ty, double td = 0.0);
 void set_drive(bool mode);

@@ -13,6 +13,7 @@ Adafruit_TiCoServo gate;
 int cycles_on_line, counted_lines;
 int cycles_on_red_line;
 byte active_hopper;
+int available_hoppers;
 byte hit_first;
 
 bool corrected_while_backing_up;
@@ -20,6 +21,7 @@ bool corrected_while_backing_up;
 int passive_status;
 float correct_initial_distance;
 float correct_half_distance;
+float last_correct_distance;
 
 // called inside every go cycle
 void user_behaviours() {
@@ -32,6 +34,7 @@ void user_correct() {
 	if (layers[LAYER_TURN].active) return;
 	passive_correct();
 	passive_position_correct();
+	passive_red_line_correct();
 }
 
 // called after arriving
@@ -58,7 +61,7 @@ void user_waypoint() {
 		// load of hopper needs to be > 0 for it to be considered
 		for (byte h = 0; hoppers[h].index < boundary_num && h < HOPPER_NUM && hoppers[h].load > 0; ++h) {
 			// alternate between closest 2 hoppers
-			// if (hoppers[h].index == active_hopper) continue;
+			if (hoppers[h].index == active_hopper && available_hoppers > 1) continue;
 
 			cur_target = approach_hopper(hoppers[h].index);
 			distance = sqrt(sq(x - cur_target.x) + sq(y - cur_target.y));
@@ -76,6 +79,7 @@ void user_waypoint() {
 			add_target(min_target.x, min_target.y, min_target.theta, TARGET_GET, true);
 			// anticipate decreasing the selected hopper's load (can't easily do that at the point of getting)
 			--hoppers[selected_hopper].load;
+			if (hoppers[selected_hopper].load == 0) --available_hoppers;
 			active_hopper = hoppers[selected_hopper].index;
 			SERIAL_PRINTLN('g');
 		}
@@ -95,7 +99,9 @@ void initialize_rbot(byte servo_pin, byte ball_proximity_pin, byte bot_led) {
 	passive_status = PASSED_NONE;
 	ball_status = BALL_LESS;
 	active_hopper = 0;
+	available_hoppers = 0;
 	corrected_while_backing_up = false;
+	last_correct_distance = 0;
 	gate.attach(servo_pin);
 	open_gate();
 }

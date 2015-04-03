@@ -30,7 +30,7 @@ void get_ball() {
 			correct_to_hopper();
 			// then close servo gate
 			close_gate();
-			hard_break();
+			hard_break(LAYER_GET);
 			get_initial_distance = tot_distance;
 		}
 	}
@@ -38,7 +38,7 @@ void get_ball() {
 	else if (ball_status == SECURED_BALL) {
 		get.speed = -GET_SPEED;
 		get.angle = 0;
-		if (paused) resume_drive();
+		if (paused) resume_drive(LAYER_GET);
 		// back up until you hit a line to correct position
 		if (on_line(CENTER)) {corrected_while_backing_up = true; correct_to_grid();}
 		
@@ -76,7 +76,7 @@ void add_hopper(byte p1, byte p2, byte p3, byte load) {
 			default: break;
 		}
 	}
-
+	++available_hoppers;
 	// pillar is a boundary
 	add_boundary((px[0]+px[1]+px[2])/3, (py[0]+py[1]+py[2])/3, HOPPER_RADIUS);
 
@@ -120,9 +120,9 @@ Target approach_hopper(byte hopper) {
 			// check if candidate x and y are too close to another hopper
 			for (byte h = 0; hoppers[h].index < boundary_num && h < HOPPER_NUM; ++h) {
 				// only consider other hoppers
+				if (hoppers[h].index == hopper) continue;
 				float turning_room = sqrt(sq(boundaries[hoppers[h].index].x - candidate_x) + sq(boundaries[hoppers[h].index].y - candidate_y));
 				
-				if (hoppers[h].index == hopper) continue;
 				// reconsider if distance is too close
 				if (turning_room < OTHER_HOPPER_TOO_CLOSE) {
 					exclude_pillar = max_index;

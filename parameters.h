@@ -31,6 +31,7 @@ constexpr byte LAYER_NAV = 2;
 constexpr byte LAYER_GET = 3;	// retrieve from hopper
 constexpr byte LAYER_PUT = 4;	// deposit ball to rendevous
 constexpr byte LAYER_WAIT = 5;
+constexpr byte ALL_ALLOWED = B11111111;
 
 constexpr int CYCLE_TIME = 50; 	// in ms
 constexpr int SENSOR_TIME = 10;  // in ms, 5x faster than navigation cycles
@@ -109,7 +110,7 @@ constexpr byte HOPPER1 = 3;
 constexpr byte HOPPER2 = 7;
 constexpr byte HOPPER3 = 10;
 constexpr byte HOPPER4 = 13;
-constexpr byte DEFAULT_LOAD = 8;
+constexpr byte DEFAULT_LOAD = 7;
 
 constexpr float PILLAR_RADIUS = 24.15;
 constexpr float HOPPER_RADIUS = 20.55;
@@ -126,6 +127,7 @@ constexpr float HALF_LINE_WIDTH = 3;
 constexpr int GRID_WIDTH = 200;			// grid spaced about 200mm apart
 constexpr int CYCLES_CROSSING_LINE = 2; 	// cycles on line for false positive to fail
 constexpr int LINES_PER_CORRECT = 0;	// how many lines to cross before correcting; 0 is every line
+constexpr int DISTANCE_CENTER_TO_RED = 30;	// allow maximum of 35mm between center hitting and red line leaving
 
 // correct to line directions
 constexpr int DIR_UP = 0;
@@ -162,5 +164,6 @@ constexpr byte BALL_LESS = 0;
 constexpr byte JUST_GOT_BALL = 1;
 constexpr byte CAUGHT_BALL = 5;
 constexpr byte SECURED_BALL = 25;	// cycles of gate closing
+
 
 }

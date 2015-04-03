@@ -11,13 +11,13 @@ void put_ball() {
 	put.angle = 0;
 	// release the ball if you have ball
 	if (ball_status == SECURED_BALL) {
-		hard_break();
+		hard_break(LAYER_PUT);
 		open_gate();
 		--ball_status;
 	} 
 	// finished releasing the ball, go to waypoint
 	else if (ball_status == BALL_LESS) {
-		if (paused) resume_drive();
+		if (paused) resume_drive(LAYER_PUT);
 		// open hoppers up for retrieving
 		open_hoppers();
 		// carry on to next target

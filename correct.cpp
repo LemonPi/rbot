@@ -105,14 +105,9 @@ void passive_position_correct() {
 			counted_lines = 0;
 			// correct whichever one is closer to 0 or 200 
 			// account for red line, can't detect along y so just correct to x
-			if (abs(y - RENDEZVOUS_Y) < 0.5*GRID_WIDTH) {
-				x = round(x / GRID_WIDTH) * GRID_WIDTH;
-				// leaving line forward
-				if (theta > -HALFPI && theta < HALFPI) x += HALF_LINE_WIDTH;
-				else x -= HALF_LINE_WIDTH;
-			}
-			else correct_to_grid();
 
+			correct_to_grid();
+			last_correct_distance = current_distance();
 			SERIAL_PRINTLN('C');
 		}
 		else {
@@ -128,9 +123,10 @@ void passive_red_line_correct() {
 	if (abs(y - RENDEZVOUS_Y) < GRID_WIDTH*0.5) {
 		digitalWrite(bottom_led, HIGH);
 		if (on_line(RED) && !on_line(CENTER)) ++cycles_on_red_line;
-		else {
+		else if (!on_line(RED)) {
 			// not false alarm
-			if (cycles_on_red_line >= LINES_PER_CORRECT) {
+			if (cycles_on_red_line >= CYCLES_CROSSING_LINE - 1 && current_distance() - last_correct_distance > DISTANCE_CENTER_TO_RED) {
+				SERIAL_PRINTLN("RC");
 				y = RENDEZVOUS_Y;
 				// between [-180,0] left while going left
 				if (theta < 0) y -= HALF_LINE_WIDTH;
@@ -147,8 +143,8 @@ void passive_red_line_correct() {
 }
 void correct_to_hopper() {
 	// extend theta backwards by the distance between the hopper and the center of the robot 
-	float correct_x = boundaries[active_hopper].x - cos(theta)*BETWEEN_HOPPER_AND_CENTER;
-	float correct_y = boundaries[active_hopper].y - sin(theta)*BETWEEN_HOPPER_AND_CENTER;
+	float correct_x = boundaries[active_hopper].x - sin(theta)*BETWEEN_HOPPER_AND_CENTER;
+	float correct_y = boundaries[active_hopper].y - cos(theta)*BETWEEN_HOPPER_AND_CENTER;
 	if (abs(correct_x - x) > NEED_TO_HOPPER_CORRECT) {
 		SERIAL_PRINTLN("HX");
 		x = correct_x;

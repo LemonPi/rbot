@@ -17,6 +17,7 @@ extern Adafruit_TiCoServo gate;
 extern float get_initial_distance;
 extern Hopper hoppers[HOPPER_NUM];
 extern byte active_hopper;
+extern int available_hoppers;
 extern byte hit_first;
 
 extern int cycles_on_line, counted_lines;
@@ -60,6 +61,7 @@ void open_gate();
 // correct theta at lines
 void passive_correct();
 void passive_position_correct();
+void passive_red_line_correct();
 void correct_to_hopper();
 
 }
