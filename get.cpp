@@ -55,6 +55,12 @@ void get_ball() {
 	else {
 		++ball_status;
 	}
+
+	if (active_layer == LAYER_GET) {
+		SERIAL_PRINT(get.speed);
+		SERIAL_PRINT('|');
+		SERIAL_PRINTLN(get.angle);
+	}
 }
 
 // hopper is defined by 3 pillar index
@@ -76,10 +82,19 @@ void add_hopper(byte p1, byte p2, byte p3, byte load) {
 			default: break;
 		}
 	}
-	++available_hoppers;
+	if (load != 0) ++available_hoppers;
 	// pillar is a boundary
 	add_boundary((px[0]+px[1]+px[2])/3, (py[0]+py[1]+py[2])/3, HOPPER_RADIUS);
+}
+void add_corner_hoppers() {
+	add_boundary(24,200,PILLAR_RADIUS);
+	add_boundary(200,24,PILLAR_RADIUS);
+	add_boundary(60,60,HOPPER_RADIUS);
 
+	add_boundary(24,1400,PILLAR_RADIUS);
+	add_boundary(1576,24,PILLAR_RADIUS);
+	add_boundary(60,1540,HOPPER_RADIUS);
+	available_hoppers += 2;
 }
 
 bool caught_ball() {

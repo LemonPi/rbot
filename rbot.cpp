@@ -114,5 +114,7 @@ void user_start() {
 	passive_status = PASSED_NONE;
 }
 
+void user_stop() {
+}
 
 }	// end namespace

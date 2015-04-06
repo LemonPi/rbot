@@ -46,6 +46,7 @@ void close_gate();
 bool caught_ball();
 
 void add_hopper(byte p1, byte p2, byte p3, byte load = DEFAULT_LOAD);
+void add_corner_hoppers();
 Target approach_hopper(byte hopper);
 byte hopper_select(byte hopper, byte exclude = 200);
 

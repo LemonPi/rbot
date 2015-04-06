@@ -121,13 +121,14 @@ constexpr float APPROACH_SCALAR = 2;
 
 // line detecting sensors
 constexpr int CALLIBRATION_TIME = 5000;	// 5s
-constexpr int THRESHOLD_TOLERANCE = 3;
+constexpr float THRESHOLD_TOLERANCE = 0.5;
 constexpr int LINE_WIDTH = 6;			// about 1cm
 constexpr float HALF_LINE_WIDTH = 3;
 constexpr int GRID_WIDTH = 200;			// grid spaced about 200mm apart
 constexpr int CYCLES_CROSSING_LINE = 2; 	// cycles on line for false positive to fail
 constexpr int LINES_PER_CORRECT = 0;	// how many lines to cross before correcting; 0 is every line
-constexpr int DISTANCE_CENTER_TO_RED = 30;	// allow maximum of 35mm between center hitting and red line leaving
+constexpr float DISTANCE_CENTER_TO_RED = 4.2;	
+constexpr int DISTANCE_CENTER_TO_RED_ALLOWANCE = 35; // allow maximum of 35mm between center hitting and red line leaving
 
 // correct to line directions
 constexpr int DIR_UP = 0;
@@ -143,16 +144,16 @@ constexpr float CORRECT_CROSSING_TOLERANCE = SIDE_SENSOR_DISTANCE / 6;	// accept
 constexpr float THETA_CORRECT_LIMIT = 0.7;	// don't correct if offset > 40 degrees
 constexpr float NEED_TO_HOPPER_CORRECT = 50;
 
-constexpr int PASSED_COOL_DOWN = -40;
+constexpr int PASSED_COOL_DOWN = -20;
 constexpr int PASSED_NONE = 0;
-constexpr int PASSED_LEFT = LEFT << 3;
-constexpr int PASSED_RIGHT = RIGHT << 3;
+constexpr int PASSED_LEFT = LEFT << SENSOR_MAX;
+constexpr int PASSED_RIGHT = RIGHT << SENSOR_MAX;
 constexpr int ENCOUNTERED_ALL = B111;
 
 
 
 // getting the ball
-constexpr int RENDEZVOUS_X = 1200;
+constexpr int RENDEZVOUS_X = 1350;
 constexpr int RENDEZVOUS_Y = 800;
 constexpr int RENDEZVOUS_CLOSE = 40;	// within 4cm of rendezvous
 constexpr float GET_DISTANCE = 50;
