@@ -7,12 +7,6 @@ void put_ball() {
 	Layer& put = layers[LAYER_PUT];
 	if (!put.active) return;
 
-	if (LAYER_PUT == active_layer) {
-		SERIAL_PRINT(layers[LAYER_PUT].speed);
-		SERIAL_PRINT('|');
-		SERIAL_PRINTLN(layers[LAYER_PUT].angle);
-	}
-
 	put.speed = 0;
 	// turn to play ball
 	// compared to 0 degrees facing gbot
@@ -23,13 +17,11 @@ void put_ball() {
 	}
 	else if (turned_to_put < RELIABLE_CORRECT_CYCLE) {
 		put.angle = turn_speed;
-		if (turn_speed < 0) put.angle -= 0.3*MIN_SPEED;
-		else put.angle += 0.3*MIN_SPEED;
+		if (turn_speed < 0) put.angle -= 0.25*MIN_SPEED;
+		else put.angle += 0.25*MIN_SPEED;
 		turned_to_put = 0;
 	}
-	// SERIAL_PRINTLN(turned_to_put);
-	// SERIAL_PRINT('b');
-	// SERIAL_PRINTLN(ball_status);
+
 	if (turned_to_put >= RELIABLE_CORRECT_CYCLE) {
 		put.angle = 0;
 		// release the ball if you have ball

@@ -152,7 +152,8 @@ void passive_red_line_correct() {
 
 				y += offset_y;
 
-				last_correct_distance = current_distance();
+				last_red_line_distance = current_distance();
+				last_correct_distance = last_red_line_distance;
 			}
 
 			cycles_on_red_line = 0;

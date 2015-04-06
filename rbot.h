@@ -35,6 +35,8 @@ extern int left_crossed, right_crossed;
 extern byte center_status;
 
 extern float last_correct_distance;
+extern float last_red_line_distance;
+extern byte side_of_board;
 
 extern byte turned_to_put;
 

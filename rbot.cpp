@@ -22,11 +22,20 @@ int passive_status;
 float correct_initial_distance;
 float correct_half_distance;
 float last_correct_distance;
+float last_red_line_distance;
+byte side_of_board;
 
 byte turned_to_put;
 
 // called inside every go cycle
 void user_behaviours() {
+	// going to rendezvous point and thinking that I'm nearly there, but haven't touched a red line yet
+	if (targets[target].type == TARGET_PUT && abs(y - RENDEZVOUS_Y) < RENDEZVOUS_CLOSE && !on_line(RED) &&
+	 (current_distance() - last_red_line_distance) > RENDEZVOUS_CLOSE) {
+		if (side_of_board == SIDE_RIGHT) y += RENDEZVOUS_CLOSE;
+		else if (side_of_board == SIDE_LEFT) y -= RENDEZVOUS_CLOSE;
+		SERIAL_PRINTLN("RN");
+	}
 	get_ball();
 	put_ball();
 		// SERIAL_PRINT(layers[active_layer].speed);
@@ -52,7 +61,22 @@ void user_waypoint() {
 	}
 	// previous target was to put the ball
 	else if (targets[target+1].type == TARGET_PUT && ball_status == SECURED_BALL) {
-		layers[LAYER_PUT].active = true;
+		// should've hit red line very recently
+		// if (on_line(RED) || (current_distance() - last_red_line_distance) < RENDEZVOUS_CLOSE) {
+			layers[LAYER_PUT].active = true;
+			SERIAL_PRINTLN("RR");
+			y = RENDEZVOUS_Y;
+		// }
+		// haven't hit red line yet, go either left or right depending on which side of board you're on
+		// else {
+		// 	SERIAL_PRINT("RN");
+		// 	SERIAL_PRINTLN(current_distance() - last_red_line_distance);
+		// 	add_target(RENDEZVOUS_X, RENDEZVOUS_Y, 0, TARGET_PUT);
+		// 	// ++process_cycles;
+			// // heading left, set internal position on right side
+			// if (side_of_board == SIDE_RIGHT) y = RENDEZVOUS_Y + RENDEZVOUS_CLOSE; 
+			// else if (side_of_board == SIDE_LEFT) y = RENDEZVOUS_Y - RENDEZVOUS_CLOSE;
+		// }
 	}
 	// don't have ball and the current target isn't to get to a ball
 	else if (ball_status == BALL_LESS && targets[target].type != TARGET_GET && target == NONE_ACTIVE) {
@@ -82,6 +106,9 @@ void user_waypoint() {
 		if (min_distance != 10000) {
 			// get the ball when you get there
 			add_target(min_target.x, min_target.y, min_target.theta, TARGET_GET, true);
+			// consider which side of the board you will be while getting target
+			if (min_target.y > RENDEZVOUS_Y) side_of_board = SIDE_RIGHT;
+			else side_of_board = SIDE_LEFT;
 			// anticipate decreasing the selected hopper's load (can't easily do that at the point of getting)
 			--hoppers[selected_hopper].load;
 			if (hoppers[selected_hopper].load == 0) --available_hoppers;
@@ -108,6 +135,8 @@ void initialize_rbot(byte servo_pin, byte ball_proximity_pin, byte bot_led) {
 	corrected_while_backing_up = false;
 	last_correct_distance = 0;
 	turned_to_put = 0;
+	last_red_line_distance = 0;
+	side_of_board = SIDE_RIGHT;
 	gate.attach(servo_pin);
 	open_gate();
 }

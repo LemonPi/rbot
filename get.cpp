@@ -14,6 +14,12 @@ void get_ball() {
 	Layer& get = layers[LAYER_GET];
 	if (!get.active) return;
 
+	if (LAYER_GET == active_layer) {
+		SERIAL_PRINT(layers[LAYER_GET].speed);
+		SERIAL_PRINT('|');
+		SERIAL_PRINTLN(layers[LAYER_GET].angle);
+	}
+
 	// either going forward or backward, always no angle
 	// go forward until ball is detected or arbitrary additional distance travelled
 	if (ball_status < CAUGHT_BALL) {
@@ -34,10 +40,21 @@ void get_ball() {
 			get_initial_distance = tot_distance;
 		}
 	}
-	// after securing ball, drive backwards for the same amount of distance
+	// after securing ball, drive backwards 
 	else if (ball_status == SECURED_BALL) {
+		// initial kick to go straight
+		static int kick_cycle = 0;
+		if (get.speed > -GET_SPEED) {get.angle = 13; }
+		else if (get.angle > 0) {
+			if (kick_cycle <= 0) {
+				if (get.angle < 7) kick_cycle = 7 - get.angle;
+				--get.angle;
+			}
+			else --kick_cycle;
+		}
+	
 		get.speed = -GET_SPEED;
-		get.angle = 0;
+		// get.angle = 0;
 		if (paused) resume_drive(LAYER_GET);
 		// back up until you hit a line to correct position
 		if (on_line(CENTER)) {
@@ -53,7 +70,7 @@ void get_ball() {
 			layers[LAYER_GET].active = false;
 			add_target(RENDEZVOUS_X, RENDEZVOUS_Y, 0, TARGET_PUT);
 			close_hoppers();
-			hard_break(LAYER_GET, 10);
+			// hard_break(LAYER_GET, 3);
 		}
 	}
 	// in the middle of closing the gate, wait a couple cycles

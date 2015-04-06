@@ -313,12 +313,14 @@ void motor_control(byte layer) {
 		l.forward();
 	}
 
-	target_r = control_layer.speed - control_layer.angle;
+	target_r = (control_layer.speed - control_layer.angle)*L_R_SPEED_RATIO;
 	if (target_r < 0) {
 		target_r = -target_r;
 		if (dir_r == FORWARD) {
 			dir_r = BACKWARD;
 			r.backward();
+			// give the right one a kick
+			target_r += 15;
 		}
 	}
 	else if (target_r > 0 && dir_r == BACKWARD) {
