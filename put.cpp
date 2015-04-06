@@ -7,19 +7,24 @@ void put_ball() {
 	Layer& put = layers[LAYER_PUT];
 	if (!put.active) return;
 
+	put.speed = 0;
 	// turn to play ball
 	// compared to 0 degrees facing gbot
-	int turn_speed = (-theta) * 3 * PUT_TURN; 
-	if (abs(theta) < THETA_TOLERANCE || abs(turn_speed) < PUT_TURN_MIN) {
+	int turn_speed = (-theta) * 2 * PUT_TURN; 
+	if (abs(theta) < 2*THETA_TOLERANCE) {
 		++turned_to_put;
+		put.angle = 0;
 	}
 	else {
 		put.angle = turn_speed;
+		if (turn_speed < 0) put.angle -= 0.3*MIN_SPEED;
+		else put.angle += 0.3*MIN_SPEED;
 		turned_to_put = 0;
 	}
-
+	// SERIAL_PRINTLN(turned_to_put);
+	// SERIAL_PRINT('b');
+	// SERIAL_PRINTLN(ball_status);
 	if (turned_to_put > RELIABLE_CORRECT_CYCLE) {
-		put.speed = 0;
 		put.angle = 0;
 		// release the ball if you have ball
 		if (ball_status == SECURED_BALL) {
@@ -27,7 +32,7 @@ void put_ball() {
 			open_gate();
 			--ball_status;
 		} 
-		// finished releasing the ball, go to waypoint
+		// finished releasing the ball, go to 	
 		else if (ball_status == BALL_LESS) {
 			if (paused) resume_drive(LAYER_PUT);
 			// open hoppers up for retrieving
@@ -35,7 +40,7 @@ void put_ball() {
 			// carry on to next target
 			put.active = false;
 			turned_to_put = 0;
-			waypoint();
+			waypoint(LAYER_PUT);
 		} 
 		// in the middle of releasing the ball (release for SECURED_BALL number of cycles)
 		else --ball_status;

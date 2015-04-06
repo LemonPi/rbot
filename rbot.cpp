@@ -29,11 +29,9 @@ byte turned_to_put;
 void user_behaviours() {
 	get_ball();
 	put_ball();
-	if (active_layer == LAYER_TURN) {
-		SERIAL_PRINT(layers[LAYER_TURN].speed);
+		SERIAL_PRINT(layers[active_layer].speed);
 		SERIAL_PRINT('|');
-		SERIAL_PRINTLN(layers[LAYER_TURN].angle);
-	}
+		SERIAL_PRINTLN(layers[active_layer].angle);
 }
 
 // control the correction layer

@@ -89,7 +89,7 @@ void locate_target();
 // navigating to target
 void navigate();
 // what to do when arriving at 
-void waypoint();
+void waypoint(byte layer);
 // turning at waypoints
 void hard_turn();
 // avoiding boundaries

@@ -41,7 +41,7 @@ void hard_turn() {
 	// turn until theta ~= target_theta
 	if (abs(to_turn) < THETA_TOLERANCE) {
 		SERIAL_PRINTLN("dt");
-		waypoint();
+		waypoint(LAYER_TURN);
 		return;
 	}
 	
@@ -122,7 +122,7 @@ void navigate() {
 		// don't need to turn anymore
 		else {
 			SERIAL_PRINTLN('f');
-			waypoint();
+			waypoint(LAYER_NAV);
 		}
 	}
 	// still seeking target
@@ -169,8 +169,9 @@ void locate_target() {
 
 // arrived at target, called at the end of other behaviours
 // decides what behaviours to enable based on game and current state
-void waypoint() {
-	SERIAL_PRINTLN('w');
+void waypoint(byte layer) {
+	SERIAL_PRINT('w');
+	SERIAL_PRINTLN(layer);
 	// other targets to reach, lower stack index, reprocess
 	if (target > 0) { 
 		--target; 

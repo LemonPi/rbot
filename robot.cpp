@@ -179,7 +179,7 @@ void start(byte layer) {
 	if (target != NONE_ACTIVE && allowed_layer(LAYER_NAV)) {
 		layers[LAYER_NAV].active = true;
 	}
-	else waypoint();
+	else waypoint(100);
 	user_start();
 }
 
