@@ -55,12 +55,6 @@ void get_ball() {
 	else {
 		++ball_status;
 	}
-
-	if (active_layer == LAYER_GET) {
-		SERIAL_PRINT(get.speed);
-		SERIAL_PRINT('|');
-		SERIAL_PRINTLN(get.angle);
-	}
 }
 
 // hopper is defined by 3 pillar index

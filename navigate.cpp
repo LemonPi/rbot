@@ -12,9 +12,9 @@ int add_target(double tx, double ty, double td, byte type, bool rad) {
 	if (td != ANY_THETA) {
 		if (!rad) {
 			td *= DEGS;
-			if (td < -PI) td += TWOPI;
-			else if (td > PI) td -= TWOPI;
 		}
+		if (td < -PI) td += TWOPI;
+		else if (td > PI) td -= TWOPI;
 	}
 	++target;
 	targets[target].x = tx;

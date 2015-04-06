@@ -36,6 +36,8 @@ extern byte center_status;
 
 extern float last_correct_distance;
 
+extern byte turned_to_put;
+
 
 void initialize_rbot(byte servo_pin, byte ball_proxity_pin, byte bot_led);
 

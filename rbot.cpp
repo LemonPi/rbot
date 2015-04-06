@@ -23,10 +23,17 @@ float correct_initial_distance;
 float correct_half_distance;
 float last_correct_distance;
 
+byte turned_to_put;
+
 // called inside every go cycle
 void user_behaviours() {
 	get_ball();
 	put_ball();
+	if (active_hopper == LAYER_TURN) {
+		SERIAL_PRINT(layers[LAYER_TURN].speed);
+		SERIAL_PRINT('|');
+		SERIAL_PRINTLN(layers[LAYER_TURN].angle);
+	}
 }
 
 // control the correction layer
@@ -102,6 +109,7 @@ void initialize_rbot(byte servo_pin, byte ball_proximity_pin, byte bot_led) {
 	available_hoppers = 0;
 	corrected_while_backing_up = false;
 	last_correct_distance = 0;
+	turned_to_put = 0;
 	gate.attach(servo_pin);
 	open_gate();
 }

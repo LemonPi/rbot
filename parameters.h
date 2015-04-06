@@ -139,7 +139,7 @@ constexpr int DIR_BACK = 180;
 
 // correction
 constexpr byte INTERSECTION_TOO_CLOSE = 40;	// allowed range [50,150] for x and y for a correct
-constexpr int CORRECT_TOO_FAR = SIDE_SENSOR_DISTANCE;	// correct theta by the distance before all 3 crosses the line
+constexpr int CORRECT_TOO_FAR = SIDE_SENSOR_DISTANCE + 10;	// correct theta by the distance before all 3 crosses the line
 constexpr float CORRECT_CROSSING_TOLERANCE = SIDE_SENSOR_DISTANCE / 6;	// accepted difference in distance travelled between the 2 halves of crossing a line
 constexpr float THETA_CORRECT_LIMIT = 0.7;	// don't correct if offset > 40 degrees
 constexpr float NEED_TO_HOPPER_CORRECT = 50;
@@ -167,4 +167,9 @@ constexpr byte CAUGHT_BALL = 5;
 constexpr byte SECURED_BALL = 25;	// cycles of gate closing
 
 
+
+// put ball
+constexpr byte RELIABLE_CORRECT_CYCLE = 6;
+constexpr int PUT_TURN = 10;
+constexpr int PUT_TURN_MIN = 5;
 }
