@@ -140,9 +140,9 @@ constexpr int DIR_BACK = 180;
 
 // correction
 constexpr byte INTERSECTION_TOO_CLOSE = 40;	// allowed range [50,150] for x and y for a correct
-constexpr int CORRECT_TOO_FAR = SIDE_SENSOR_DISTANCE + 10;	// correct theta by the distance before all 3 crosses the line
+constexpr int CORRECT_TOO_FAR = SIDE_SENSOR_DISTANCE + 25;	// correct theta by the distance before all 3 crosses the line
 constexpr float CORRECT_CROSSING_TOLERANCE = SIDE_SENSOR_DISTANCE / 6;	// accepted difference in distance travelled between the 2 halves of crossing a line
-constexpr float THETA_CORRECT_LIMIT = 0.7;	// don't correct if offset > 40 degrees
+constexpr float THETA_CORRECT_LIMIT = 0.4;	// don't correct if offset > 23 degrees
 constexpr float NEED_TO_HOPPER_CORRECT = 50;
 
 constexpr int PASSED_COOL_DOWN = -20;
@@ -154,6 +154,9 @@ constexpr int ENCOUNTERED_ALL = B111;
 
 
 // getting the ball
+constexpr int GAME_BOARD_X = 1790;
+constexpr int GAME_BOARD_Y = 1600;
+
 constexpr int RENDEZVOUS_X = 1350;
 constexpr int RENDEZVOUS_Y = 800;
 constexpr int RENDEZVOUS_CLOSE = 40;	// within 4cm of rendezvous

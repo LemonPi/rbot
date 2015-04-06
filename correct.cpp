@@ -18,6 +18,12 @@ void passive_correct() {
 
 	if (!far_from_intersection(x, y)) return;
 
+	// check if center one first activated; halfway there
+	if (on_line(CENTER) && !(passive_status & CENTER)) {
+		correct_half_distance = current_distance();
+		SERIAL_PRINTLN("PH");
+	}
+
 	// activate passive correct when either left or right sensor FIRST ACTIVATES
 	if ((on_line(LEFT) || on_line(RIGHT)) && passive_status == PASSED_NONE) {
 		correct_initial_distance = current_distance();
@@ -34,11 +40,6 @@ void passive_correct() {
 		// return;
 	}
 
-	// check if center one first activated; halfway there
-	if (on_line(CENTER) && !(passive_status & CENTER)) {
-		correct_half_distance = current_distance();
-		SERIAL_PRINTLN("PH");
-	}
 
 	if ((passive_status & LEFT) && !on_line(LEFT)) passive_status |= PASSED_LEFT;
 	if ((passive_status & RIGHT) && !on_line(RIGHT)) passive_status |= PASSED_RIGHT;
@@ -57,25 +58,26 @@ void passive_correct() {
 			// always positive
 			float theta_offset = atan2(correct_elapsed_distance, SIDE_SENSOR_DISTANCE);
 
-			// theta offset should never be beyond a reasonable limit
-			if (theta_offset > THETA_CORRECT_LIMIT) {
+			// reverse theta correction if direction is backwards
+			if (layers[get_active_layer()].speed < 0) theta_offset = -theta_offset; 
+			float theta_candidate;
+			// assume whichever one passed first was the first to hit
+			if (passive_status & PASSED_LEFT) theta_candidate = (square_heading()*DEGS) + theta_offset;
+			else if (passive_status & PASSED_RIGHT) theta_candidate = (square_heading()*DEGS) - theta_offset;
+			else if (hit_first == LEFT) theta_candidate = (square_heading()*DEGS) + theta_offset;
+			else if (hit_first == RIGHT) theta_candidate = (square_heading()*DEGS) - theta_offset;
+			// hit at the same time?
+			else theta_candidate = (square_heading()*DEGS);
+
+			// check how far away correction is from current theta
+			if (abs(theta - theta_candidate) > THETA_CORRECT_LIMIT) {
 				SERIAL_PRINT("PO");
-				SERIAL_PRINTLN(theta_offset*RADS);
+				SERIAL_PRINTLN(theta_candidate*RADS);
 				passive_status = PASSED_COOL_DOWN;
 				return;
 			}
-
-			// reverse theta correction if direction is backwards
-			if (layers[get_active_layer()].speed < 0) theta_offset = -theta_offset; 
-
-			// assume whichever one passed first was the first to hit
-			if (passive_status & PASSED_LEFT) theta = (square_heading()*DEGS) + theta_offset;
-			else if (passive_status & PASSED_RIGHT) theta = (square_heading()*DEGS) - theta_offset;
-			else if (hit_first == LEFT) theta = (square_heading()*DEGS) + theta_offset;
-			else if (hit_first == RIGHT) theta = (square_heading()*DEGS) - theta_offset;
-			// hit at the same time?
-			else theta = (square_heading()*DEGS);
-
+			// else correct to candidate value
+			theta = theta_candidate;
 			SERIAL_PRINT('P');
 			SERIAL_PRINTLN(theta_offset*RADS);
 

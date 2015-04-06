@@ -139,7 +139,8 @@ void indicate_sensors();
 void correct_to_grid();
 int square_heading();
 bool far_from_intersection(int candidate_x, int candidate_y);
-
+bool far_from_grid(int xx, int yy);
+bool close_to_wall(int candidate_x, int candidate_y);
 
 // retrieve information from the robot
 bool get_on();

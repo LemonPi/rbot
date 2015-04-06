@@ -115,6 +115,8 @@ Target approach_hopper(byte hopper) {
 		byte exclude_pillar = 200;	// don't exclude any pillars initially
 
 		double off_x, off_y, candidate_x, candidate_y;
+		// might have to stretch offset if target is too close to wall
+		float approach_stretch_factor = 1.1;
 
 		while (!safe_target) {
 			safe_target = true;
@@ -137,7 +139,19 @@ Target approach_hopper(byte hopper) {
 					exclude_pillar = max_index;
 					safe_target = false;
 				}
+			}
+
+			while (!far_from_grid(candidate_x, candidate_y)) {
+				candidate_x = boundaries[hopper].x - approach_stretch_factor*off_x;
+				candidate_y = boundaries[hopper].y - approach_stretch_factor*off_y;
+				if (close_to_wall(candidate_x, candidate_y)) {
+					exclude_pillar = max_index;
+					safe_target = false;
+				}
+				approach_stretch_factor += 0.05;
 			} 
+			// reset it for the next target
+			approach_stretch_factor = 1.05;
 		} 
 
 		return Target{candidate_x, candidate_y, atan2(off_y, off_x)};

@@ -45,7 +45,6 @@ void hard_turn() {
 		return;
 	}
 	
-	SERIAL_PRINTLN(turn_size - abs(to_turn));
 	// either to_turn close to turn size or even greater, kick start it (usually at start of turn)
 	if (turn_size - abs(to_turn) < THETA_TOLERANCE) {
 		if (to_turn < 0) turn.angle = -KICK_SPEED;
