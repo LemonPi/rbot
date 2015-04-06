@@ -67,7 +67,7 @@ extern byte on_lines;	// bit array, only 8 bits (sensors)
 extern byte prev_on_lines;
 extern int thresholds[SENSOR_MAX];
 
-
+extern int wait_cycles;
 extern bool drive, paused, on;
 
 // methods
@@ -115,7 +115,7 @@ void initialize_robot(byte c1_l, byte c2_l, byte outpin_l, byte c1_r, byte c2_r,
 
 void start(byte layer);
 void stop(byte layer);
-void hard_break(byte layer);
+void hard_break(byte layer, int cycles = -1);
 void resume_drive(byte layer);
 
 byte get_active_layer();

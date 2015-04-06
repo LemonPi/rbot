@@ -7,6 +7,12 @@ void put_ball() {
 	Layer& put = layers[LAYER_PUT];
 	if (!put.active) return;
 
+	if (LAYER_PUT == active_layer) {
+		SERIAL_PRINT(layers[LAYER_PUT].speed);
+		SERIAL_PRINT('|');
+		SERIAL_PRINTLN(layers[LAYER_PUT].angle);
+	}
+
 	put.speed = 0;
 	// turn to play ball
 	// compared to 0 degrees facing gbot
@@ -15,7 +21,7 @@ void put_ball() {
 		++turned_to_put;
 		put.angle = 0;
 	}
-	else {
+	else if (turned_to_put < RELIABLE_CORRECT_CYCLE) {
 		put.angle = turn_speed;
 		if (turn_speed < 0) put.angle -= 0.3*MIN_SPEED;
 		else put.angle += 0.3*MIN_SPEED;
@@ -24,7 +30,7 @@ void put_ball() {
 	// SERIAL_PRINTLN(turned_to_put);
 	// SERIAL_PRINT('b');
 	// SERIAL_PRINTLN(ball_status);
-	if (turned_to_put > RELIABLE_CORRECT_CYCLE) {
+	if (turned_to_put >= RELIABLE_CORRECT_CYCLE) {
 		put.angle = 0;
 		// release the ball if you have ball
 		if (ball_status == SECURED_BALL) {
@@ -33,13 +39,14 @@ void put_ball() {
 			--ball_status;
 		} 
 		// finished releasing the ball, go to 	
-		else if (ball_status == BALL_LESS) {
+		else if (ball_status == RELEASED_BALL) {
 			if (paused) resume_drive(LAYER_PUT);
 			// open hoppers up for retrieving
 			open_hoppers();
 			// carry on to next target
 			put.active = false;
 			turned_to_put = 0;
+			ball_status = BALL_LESS;
 			waypoint(LAYER_PUT);
 		} 
 		// in the middle of releasing the ball (release for SECURED_BALL number of cycles)

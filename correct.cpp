@@ -120,8 +120,10 @@ void passive_position_correct() {
 			SERIAL_PRINTLN('C');
 		}
 		else {
+			// false alarm, cool down
 			++counted_lines;
 			SERIAL_PRINTLN('L');
+			passive_status = PASSED_COOL_DOWN;
 		}
 		// either C or L will have last correct distance updated
 		last_correct_distance = current_distance();
@@ -130,8 +132,8 @@ void passive_position_correct() {
 }
 
 void passive_red_line_correct() {
-	// turn on blue LED close to center line 
-	if (abs(y - RENDEZVOUS_Y) < GRID_WIDTH*0.5) {
+	// only correct to red line if not backing up
+	if (abs(y - RENDEZVOUS_Y) < GRID_WIDTH*0.5 && layers[active_layer].speed > 0) {
 		digitalWrite(bottom_led, HIGH);
 		if (on_line(CENTER)) cycles_on_red_line = 0;
 		else if (on_line(RED) && !on_line(CENTER)) ++cycles_on_red_line;
@@ -142,11 +144,13 @@ void passive_red_line_correct() {
 				SERIAL_PRINTLN(current_distance() - last_correct_distance);
 				y = RENDEZVOUS_Y;
 				// direction and signs are taken care of by sin and cos
-				y += DISTANCE_CENTER_TO_RED * sin(theta); 
-				// x += DISTANCE_CENTER_TO_RED * cos(theta);
+				float offset_y = DISTANCE_CENTER_TO_RED * sin(theta);
 				// between [-180,0] left while going left
-				if (theta < 0) y -= HALF_LINE_WIDTH;
-				else y += HALF_LINE_WIDTH;
+				// x += DISTANCE_CENTER_TO_RED * cos(theta);
+				if (theta < 0) offset_y -= HALF_LINE_WIDTH;
+				else offset_y += HALF_LINE_WIDTH;
+
+				y += offset_y;
 
 				last_correct_distance = current_distance();
 			}

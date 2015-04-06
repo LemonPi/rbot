@@ -145,7 +145,7 @@ constexpr float CORRECT_CROSSING_TOLERANCE = SIDE_SENSOR_DISTANCE / 6;	// accept
 constexpr float THETA_CORRECT_LIMIT = 0.4;	// don't correct if offset > 23 degrees
 constexpr float NEED_TO_HOPPER_CORRECT = 50;
 
-constexpr int PASSED_COOL_DOWN = -20;
+constexpr int PASSED_COOL_DOWN = -10;
 constexpr int PASSED_NONE = 0;
 constexpr int PASSED_LEFT = LEFT << SENSOR_MAX;
 constexpr int PASSED_RIGHT = RIGHT << SENSOR_MAX;
@@ -168,7 +168,8 @@ constexpr int GET_TURN = 10;
 constexpr byte BALL_LESS = 0;
 constexpr byte JUST_GOT_BALL = 1;
 constexpr byte CAUGHT_BALL = 5;
-constexpr byte SECURED_BALL = 25;	// cycles of gate closing
+constexpr byte RELEASED_BALL = 10;
+constexpr byte SECURED_BALL = 20;	// cycles of gate closing
 
 
 

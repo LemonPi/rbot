@@ -40,7 +40,11 @@ void get_ball() {
 		get.angle = 0;
 		if (paused) resume_drive(LAYER_GET);
 		// back up until you hit a line to correct position
-		if (on_line(CENTER)) {corrected_while_backing_up = true; correct_to_grid();}
+		if (on_line(CENTER)) {
+			corrected_while_backing_up = true; 
+			correct_to_grid();
+			SERIAL_PRINTLN("CWB");
+		}
 		
 		// backed up far enough
 		if (corrected_while_backing_up && tot_distance - get_initial_distance > 5*GET_DISTANCE) {
@@ -49,6 +53,7 @@ void get_ball() {
 			layers[LAYER_GET].active = false;
 			add_target(RENDEZVOUS_X, RENDEZVOUS_Y, 0, TARGET_PUT);
 			close_hoppers();
+			hard_break(LAYER_GET, 10);
 		}
 	}
 	// in the middle of closing the gate, wait a couple cycles
@@ -141,17 +146,18 @@ Target approach_hopper(byte hopper) {
 				}
 			}
 
-			while (!far_from_grid(candidate_x, candidate_y)) {
-				candidate_x = boundaries[hopper].x - approach_stretch_factor*off_x;
-				candidate_y = boundaries[hopper].y - approach_stretch_factor*off_y;
-				if (close_to_wall(candidate_x, candidate_y)) {
-					exclude_pillar = max_index;
-					safe_target = false;
-				}
-				approach_stretch_factor += 0.05;
-			} 
-			// reset it for the next target
-			approach_stretch_factor = 1.05;
+			// choosing the best 
+			// while (!far_from_grid(candidate_x, candidate_y)) {
+			// 	candidate_x = boundaries[hopper].x - approach_stretch_factor*off_x;
+			// 	candidate_y = boundaries[hopper].y - approach_stretch_factor*off_y;
+			// 	if (close_to_wall(candidate_x, candidate_y)) {
+			// 		exclude_pillar = max_index;
+			// 		safe_target = false;
+			// 	}
+			// 	approach_stretch_factor += 0.05;
+			// } 
+			// // reset it for the next target
+			// approach_stretch_factor = 1.05;
 		} 
 
 		return Target{candidate_x, candidate_y, atan2(off_y, off_x)};
