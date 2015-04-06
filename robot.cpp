@@ -28,6 +28,9 @@ int out_l, out_r;			// output values
 double x, y, theta, tot_distance;	
 double to_turn;
 
+// turning in place
+float turn_size;
+
 // waypoint navigation
 Target targets[TARGET_MAX];
 double target_distance, last_target_distance, heading_error;
@@ -130,6 +133,8 @@ void initialize_robot(byte c1_l, byte c2_l, byte outpin_l, byte c1_r, byte c2_r,
 	target_distance = last_target_distance = heading_error = 0;
 	target = NONE_ACTIVE;
 	process_cycles = 1;
+
+	turn_size = 0;
 
 	// motor control
 	l.pin_assign(c1_l, c2_l, outpin_l);

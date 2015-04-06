@@ -79,6 +79,7 @@ constexpr int TPR = 1200;
 constexpr int TOP_SPEED = 45; 	// in ticks per cycle 
 constexpr int MIN_SPEED = 15;
 constexpr int START_SPEED = 45;
+constexpr int KICK_SPEED = 55;
 
 
 // navigation

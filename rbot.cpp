@@ -29,7 +29,7 @@ byte turned_to_put;
 void user_behaviours() {
 	get_ball();
 	put_ball();
-	if (active_hopper == LAYER_TURN) {
+	if (active_layer == LAYER_TURN) {
 		SERIAL_PRINT(layers[LAYER_TURN].speed);
 		SERIAL_PRINT('|');
 		SERIAL_PRINTLN(layers[LAYER_TURN].angle);

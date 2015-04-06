@@ -44,6 +44,9 @@ extern int out_l, out_r;			// output values
 extern double x, y, theta, tot_distance;	
 extern double to_turn;	// turning in place
 
+// turn in place
+extern float turn_size;
+
 // waypoint navigation
 extern Target targets[TARGET_MAX];
 extern double target_distance, last_target_distance, heading_error;
