@@ -70,8 +70,8 @@ void get_ball() {
 			// after getting ball, return to rendezvous point
 			corrected_while_backing_up = false;
 			layers[LAYER_GET].active = false;
-			add_target(RENDEZVOUS_X, RENDEZVOUS_Y, 0, TARGET_PUT);
 			close_hoppers();
+			return_from_hopper();
 			// hard_break(LAYER_GET, 3);
 		}
 	}
@@ -138,6 +138,26 @@ void follow_hopper_waypoints(byte h) {
 	for (byte w = 1; w < hopper.waypoint; ++w) {
 		add_target(hopper_waypoints[h][w].x, hopper_waypoints[h][w].y, ANY_THETA);
 	}
+}
+// return from hopper to rendezvous in reverse direction
+void return_from_hopper() {
+	byte h;
+	if (active_hopper == HOPPER1) h = 0;
+	else if (active_hopper == HOPPER2) h = 2;
+	else if (active_hopper == HOPPER3) h = 3;
+	else if (active_hopper == HOPPER4) h = 4;
+	Hopper& hopper = hoppers[h];
+	if (hopper.waypoint == 0) {
+		SERIAL_PRINT("No waypoints:");
+		SERIAL_PRINTLN(active_hopper);
+		return;
+	}
+	add_target(RENDEZVOUS_X, RENDEZVOUS_Y, 0, TARGET_PUT);
+	// skip the last target
+	for (byte w = hoppers[h].waypoint - 1; w > 0; --w) {
+		add_target(hopper_waypoints[h][w].x, hopper_waypoints[h][w].y);
+	}
+
 }
 
 void add_corner_hoppers() {

@@ -14,7 +14,7 @@ void passive_correct() {
 		return;
 	}
 
-	SERIAL_PRINTLN(passive_status, BIN);
+	// SERIAL_PRINTLN(passive_status, BIN);
 	// check if center one first activated; halfway there
 	if (on_line(CENTER) && !(passive_status & CENTER)) {
 		correct_half_distance = current_distance();

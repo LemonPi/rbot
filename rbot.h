@@ -58,6 +58,7 @@ byte hopper_select(byte hopper, byte exclude = 200);
 void last_hopper_waypoint(int h);
 void add_hopper_waypoint(int h, int t_x, int t_y);
 void follow_hopper_waypoints(byte h);
+void return_from_hopper();
 
 void open_hoppers();
 void close_hoppers();

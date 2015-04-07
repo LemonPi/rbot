@@ -48,7 +48,7 @@ void user_behaviours() {
 	}
 	get_ball();
 	put_ball();
-	if (active_layer == LAYER_NAV) {
+	if (active_layer == LAYER_TURN) {
 		SERIAL_PRINT(layers[active_layer].speed);
 		SERIAL_PRINT('|');
 		SERIAL_PRINTLN(layers[active_layer].angle);
@@ -73,6 +73,12 @@ void user_waypoint() {
 		SERIAL_PRINTLN("RS");
 		// add a turn in place
 		++target;
+			// reinitialize PID
+		out_l = out_r = integral_l = integral_r = 0;
+		prev_l = tick_l;
+		prev_r = tick_r;
+		
+		hard_break(LAYER_NAV, 10);
 		layers[LAYER_TURN].active = true;
 		layers[LAYER_NAV].active = false;
 		// add_target(x, y, 0, TARGET_PUT);
@@ -95,24 +101,29 @@ void user_waypoint() {
 		// find closest hopper to retrieve
 		// active_hopper is the hopper number, at the end of the loop will be the one to select
 		byte selected_hopper;
+		float min_distance = 10000;
 		// load of hopper needs to be > 0 for it to be considered
 		for (byte h = 0; hoppers[h].index < boundary_num && h < HOPPER_NUM && hoppers[h].load > 0; ++h) {
 			// alternate between closest 2 hoppers
 			if (hoppers[h].index == active_hopper && available_hoppers > 1) continue;
-
-			follow_hopper_waypoints(h);
-			selected_hopper = h;
-			break;			
-
+			Boundary& cur_hopper = boundaries[hoppers[h].index];
+			float distance = sqrt(sq(x - cur_hopper.x) + sq(y - cur_hopper.y));
+			// find the closest
+			// also check that getting there won't bring you too close to another hopper
+			if (distance < min_distance) {
+				min_distance = distance; 
+				selected_hopper = h;
+			}
 		}
-		--hoppers[selected_hopper].load;
-		if (hoppers[selected_hopper].load == 0) --available_hoppers;
-		active_hopper = hoppers[selected_hopper].index;
-		SERIAL_PRINTLN('g');
-		
+		if (min_distance != 10000) {
+			follow_hopper_waypoints(selected_hopper);
+			--hoppers[selected_hopper].load;
+			if (hoppers[selected_hopper].load == 0) --available_hoppers;
+			active_hopper = hoppers[selected_hopper].index;
+			SERIAL_PRINTLN('g');
+		}
 	}
 }
-
 
 void initialize_rbot(byte servo_pin, byte ball_proximity_pin, byte bot_led) {
 	ball_pin = ball_proximity_pin;

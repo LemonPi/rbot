@@ -162,7 +162,7 @@ constexpr byte SIDE_RIGHT = 2;
 constexpr int GAME_BOARD_X = 1790;
 constexpr int GAME_BOARD_Y = 1600;
 
-constexpr int RENDEZVOUS_X = 1350;
+constexpr int RENDEZVOUS_X = 1353;
 constexpr int RENDEZVOUS_Y = 800;
 constexpr int RENDEZVOUS_CLOSE = 7;	// within 7cm of rendezvous
 constexpr float GET_DISTANCE = 50;
