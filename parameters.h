@@ -77,17 +77,19 @@ constexpr float KD = 0.005;
 
 constexpr int TPR = 1200;
 
-constexpr int TOP_SPEED = 45; 	// in ticks per cycle 
+constexpr int TOP_SPEED = 40; 	// in ticks per cycle 
 constexpr int MIN_SPEED = 15;
 constexpr int START_SPEED = 45;
 constexpr int KICK_SPEED = 55;
+
+constexpr int MOTOR_STALLING = 5; // how many cycles to wait before confirming that motor stalled
 
 
 // navigation
 constexpr float TARGET_CIRCLE = 10.0;	// allow for 20mm error from target
 constexpr float TARGET_IMMEDIATE = 5.0;// don't try to get closer than 3mm (fixes high heading error when really close)
 constexpr float TARGET_CLOSE = 200.0;	// slow down 100mm from target
-constexpr int NAV_TURN = 20;			// turn size in ticks/cycle, adjustable
+constexpr int NAV_TURN = 15;			// turn size in ticks/cycle, adjustable
 constexpr float THETA_TOLERANCE = 0.03;	// around 3 degree turning
 
 constexpr int ANY_THETA = 9000;	// if no target is set
@@ -141,15 +143,15 @@ constexpr int DIR_BACK = 180;
 
 // correction
 constexpr byte INTERSECTION_TOO_CLOSE = 40;	// allowed range [50,150] for x and y for a correct
-constexpr int CORRECT_TOO_FAR = SIDE_SENSOR_DISTANCE + 25;	// correct theta by the distance before all 3 crosses the line
+constexpr int CORRECT_TOO_FAR = SIDE_SENSOR_DISTANCE * 0.68;	// correct theta by the distance before all 3 crosses the line
 constexpr float CORRECT_CROSSING_TOLERANCE = SIDE_SENSOR_DISTANCE / 6;	// accepted difference in distance travelled between the 2 halves of crossing a line
 constexpr float THETA_CORRECT_LIMIT = 0.4;	// don't correct if offset > 23 degrees
 constexpr float NEED_TO_HOPPER_CORRECT = 50;
 
 constexpr int PASSED_COOL_DOWN = -10;
 constexpr int PASSED_NONE = 0;
-constexpr int PASSED_LEFT = LEFT << SENSOR_MAX;
-constexpr int PASSED_RIGHT = RIGHT << SENSOR_MAX;
+constexpr int PASSED_LEFT = LEFT << 3;
+constexpr int PASSED_RIGHT = RIGHT << 3;
 constexpr int ENCOUNTERED_ALL = B111;
 
 constexpr byte SIDE_LEFT = 1;

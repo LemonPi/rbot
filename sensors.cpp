@@ -52,6 +52,10 @@ bool close_to_wall(int xx, int yy) {
 	if (xx < GRID_WIDTH/2 || yy < GRID_WIDTH/2 || xx > GAME_BOARD_X - GRID_WIDTH/2 || yy > GAME_BOARD_Y - GRID_WIDTH/2) return true;
 	else return false;
 }
+bool parallel_to_horizontal() {
+	return (theta < 0 && abs(theta - (-HALFPI)) < THETA_TOLERANCE*5) ||
+		   (theta > 0 && abs(theta - (HALFPI)) < THETA_TOLERANCE*5);
+}
 
 // round angle to multiples of 90
 int square_heading() {

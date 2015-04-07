@@ -4,7 +4,8 @@
 
 namespace robot {
 
-Hopper hoppers[HOPPER_NUM] = {{HOPPER1, 7}, {HOPPER2, 7}, {HOPPER3, 4}, {HOPPER4, 4}};
+Hopper hoppers[HOPPER_NUM] = {{HOPPER1, 7, 0}, {HOPPER2, 7, 0}, {HOPPER3, 4, 0}, {HOPPER4, 4, 0}};
+Target hopper_waypoints[HOPPER_NUM][5];
 
 const int x_lookup[4] = {1230,1010,790,570};
 const int y_lookup[7] = {420,550,670,800,930,1050,1170};
@@ -64,8 +65,9 @@ void get_ball() {
 		}
 		
 		// backed up far enough
-		if (corrected_while_backing_up && tot_distance - get_initial_distance > 5*GET_DISTANCE) {
-		// after getting ball, return to rendezvous point
+		if (tot_distance - get_initial_distance > 5*GET_DISTANCE) {
+			// corrected_while_backing_up && 
+			// after getting ball, return to rendezvous point
 			corrected_while_backing_up = false;
 			layers[LAYER_GET].active = false;
 			add_target(RENDEZVOUS_X, RENDEZVOUS_Y, 0, TARGET_PUT);
@@ -102,6 +104,42 @@ void add_hopper(byte p1, byte p2, byte p3, byte load) {
 	// pillar is a boundary
 	add_boundary((px[0]+px[1]+px[2])/3, (py[0]+py[1]+py[2])/3, HOPPER_RADIUS);
 }
+void add_hopper_waypoint(int h, int t_x, int t_y) {
+	Hopper& hopper = hoppers[h];
+	Target& h_waypoint = hopper_waypoints[h][hopper.waypoint];
+	h_waypoint.x = t_x;
+	h_waypoint.y = t_y;
+	h_waypoint.type = TARGET_NAV;
+	++hopper.waypoint;
+}
+void last_hopper_waypoint(int h) {
+	Hopper& hopper = hoppers[h];
+	Target& last_waypoint = hopper_waypoints[h][0];
+	int hx = boundaries[hopper.index].x;
+	int hy = boundaries[hopper.index].y;
+	last_waypoint.theta = atan2(hy - last_waypoint.y, hx - last_waypoint.x);
+	SERIAL_PRINT("last waypoint: ");
+	SERIAL_PRINT(hopper_waypoints[h][0].x);
+	SERIAL_PRINT(' ');
+	SERIAL_PRINT(hopper_waypoints[h][0].y);
+	SERIAL_PRINT(' ');
+	SERIAL_PRINTLN(hopper_waypoints[h][0].theta * RADS);
+}
+void follow_hopper_waypoints(byte h) {
+	Hopper& hopper = hoppers[h];
+	if (hopper.waypoint == 0) {
+		SERIAL_PRINT("No waypoints:");
+		SERIAL_PRINTLN(h);
+		return;
+	}
+	
+	add_target(hopper_waypoints[h][0].x, hopper_waypoints[h][0].y, hopper_waypoints[h][0].theta, TARGET_GET, true);
+
+	for (byte w = 1; w < hopper.waypoint; ++w) {
+		add_target(hopper_waypoints[h][w].x, hopper_waypoints[h][w].y, ANY_THETA);
+	}
+}
+
 void add_corner_hoppers() {
 	add_boundary(24,200,PILLAR_RADIUS);
 	add_boundary(200,24,PILLAR_RADIUS);
@@ -163,18 +201,6 @@ Target approach_hopper(byte hopper) {
 				}
 			}
 
-			// choosing the best 
-			// while (!far_from_grid(candidate_x, candidate_y)) {
-			// 	candidate_x = boundaries[hopper].x - approach_stretch_factor*off_x;
-			// 	candidate_y = boundaries[hopper].y - approach_stretch_factor*off_y;
-			// 	if (close_to_wall(candidate_x, candidate_y)) {
-			// 		exclude_pillar = max_index;
-			// 		safe_target = false;
-			// 	}
-			// 	approach_stretch_factor += 0.05;
-			// } 
-			// // reset it for the next target
-			// approach_stretch_factor = 1.05;
 		} 
 
 		return Target{candidate_x, candidate_y, atan2(off_y, off_x)};

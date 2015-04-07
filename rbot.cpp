@@ -24,23 +24,36 @@ float correct_half_distance;
 float last_correct_distance;
 float last_red_line_distance;
 byte side_of_board;
+bool seeking_red_line;
 
 byte turned_to_put;
 
 // called inside every go cycle
 void user_behaviours() {
 	// going to rendezvous point and thinking that I'm nearly there, but haven't touched a red line yet
-	if (targets[target].type == TARGET_PUT && abs(y - RENDEZVOUS_Y) < RENDEZVOUS_CLOSE && !on_line(RED) &&
-	 (current_distance() - last_red_line_distance) > RENDEZVOUS_CLOSE) {
-		if (side_of_board == SIDE_RIGHT) y += RENDEZVOUS_CLOSE;
-		else if (side_of_board == SIDE_LEFT) y -= RENDEZVOUS_CLOSE;
+	if (active_layer == LAYER_NAV && 
+		targets[target].type == TARGET_PUT && abs(y - RENDEZVOUS_Y) < RENDEZVOUS_CLOSE && 
+		(!on_line(RED) || (on_line(RED) && on_line(CENTER))) &&	// both on line means black line, disregard
+	 	((current_distance() - last_red_line_distance) > 5*RENDEZVOUS_CLOSE || last_red_line_distance == 0)) {
+		if (side_of_board == SIDE_RIGHT) y += 2*RENDEZVOUS_CLOSE;
+		else if (side_of_board == SIDE_LEFT) y -= 2*RENDEZVOUS_CLOSE;
 		SERIAL_PRINTLN("RN");
+
+		// in case navigation gets greedy and releases control to turn in place
+		layers[LAYER_TURN].active = false;
+		// miles to go before robot is at RR
+		layers[LAYER_NAV].active = true;
+		seeking_red_line = true;
+		++process_cycles;
 	}
 	get_ball();
 	put_ball();
-		// SERIAL_PRINT(layers[active_layer].speed);
-		// SERIAL_PRINT('|');
-		// SERIAL_PRINTLN(layers[active_layer].angle);
+	if (active_layer == LAYER_NAV) {
+		SERIAL_PRINT(layers[active_layer].speed);
+		SERIAL_PRINT('|');
+		SERIAL_PRINTLN(layers[active_layer].angle);
+		
+	}
 }
 
 // control the correction layer
@@ -54,37 +67,32 @@ void user_correct() {
 // called after arriving
 void user_waypoint() {
 	// previous target was to get the ball (target+1 was immediately previous target)
-	if (targets[target+1].type == TARGET_GET) {
+	if (targets[target+1].type == TARGET_PUT && seeking_red_line) {
+		seeking_red_line = false;
+		// emergency stop by red line correct
+		SERIAL_PRINTLN("RS");
+		// add a turn in place
+		++target;
+		layers[LAYER_TURN].active = true;
+		layers[LAYER_NAV].active = false;
+		// add_target(x, y, 0, TARGET_PUT);
+	}
+	else if (targets[target+1].type == TARGET_GET) {
 		layers[LAYER_GET].active = true;
 		// starting point of retrieving the robot
 		get_initial_distance = tot_distance;
 	}
 	// previous target was to put the ball
 	else if (targets[target+1].type == TARGET_PUT && ball_status == SECURED_BALL) {
-		// should've hit red line very recently
-		// if (on_line(RED) || (current_distance() - last_red_line_distance) < RENDEZVOUS_CLOSE) {
 			layers[LAYER_PUT].active = true;
-			SERIAL_PRINTLN("RR");
+			SERIAL_PRINT("RR");
+			SERIAL_PRINTLN((current_distance() - last_red_line_distance));
+
 			y = RENDEZVOUS_Y;
-		// }
-		// haven't hit red line yet, go either left or right depending on which side of board you're on
-		// else {
-		// 	SERIAL_PRINT("RN");
-		// 	SERIAL_PRINTLN(current_distance() - last_red_line_distance);
-		// 	add_target(RENDEZVOUS_X, RENDEZVOUS_Y, 0, TARGET_PUT);
-		// 	// ++process_cycles;
-			// // heading left, set internal position on right side
-			// if (side_of_board == SIDE_RIGHT) y = RENDEZVOUS_Y + RENDEZVOUS_CLOSE; 
-			// else if (side_of_board == SIDE_LEFT) y = RENDEZVOUS_Y - RENDEZVOUS_CLOSE;
-		// }
 	}
 	// don't have ball and the current target isn't to get to a ball
 	else if (ball_status == BALL_LESS && targets[target].type != TARGET_GET && target == NONE_ACTIVE) {
 		// find closest hopper to retrieve
-		float min_distance = 10000;
-		float distance;
-		Target min_target;
-		Target cur_target;
 		// active_hopper is the hopper number, at the end of the loop will be the one to select
 		byte selected_hopper;
 		// load of hopper needs to be > 0 for it to be considered
@@ -92,29 +100,16 @@ void user_waypoint() {
 			// alternate between closest 2 hoppers
 			if (hoppers[h].index == active_hopper && available_hoppers > 1) continue;
 
-			cur_target = approach_hopper(hoppers[h].index);
-			distance = sqrt(sq(x - cur_target.x) + sq(y - cur_target.y));
-			// find a close hopper
-			// also check that getting there won't bring you too close to another hopper
-			if (distance < min_distance) {
-				min_distance = distance; 
-				min_target = cur_target;
-				selected_hopper = h;
-			}
+			follow_hopper_waypoints(h);
+			selected_hopper = h;
+			break;			
+
 		}
-		// go to that hopper if one exists
-		if (min_distance != 10000) {
-			// get the ball when you get there
-			add_target(min_target.x, min_target.y, min_target.theta, TARGET_GET, true);
-			// consider which side of the board you will be while getting target
-			if (min_target.y > RENDEZVOUS_Y) side_of_board = SIDE_RIGHT;
-			else side_of_board = SIDE_LEFT;
-			// anticipate decreasing the selected hopper's load (can't easily do that at the point of getting)
-			--hoppers[selected_hopper].load;
-			if (hoppers[selected_hopper].load == 0) --available_hoppers;
-			active_hopper = hoppers[selected_hopper].index;
-			SERIAL_PRINTLN('g');
-		}
+		--hoppers[selected_hopper].load;
+		if (hoppers[selected_hopper].load == 0) --available_hoppers;
+		active_hopper = hoppers[selected_hopper].index;
+		SERIAL_PRINTLN('g');
+		
 	}
 }
 
@@ -137,6 +132,7 @@ void initialize_rbot(byte servo_pin, byte ball_proximity_pin, byte bot_led) {
 	turned_to_put = 0;
 	last_red_line_distance = 0;
 	side_of_board = SIDE_RIGHT;
+	seeking_red_line = false;
 	gate.attach(servo_pin);
 	open_gate();
 }

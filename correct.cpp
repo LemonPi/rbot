@@ -8,21 +8,19 @@ void passive_correct() {
 
 	// still on cool down
 	if (passive_status < PASSED_NONE) {++passive_status; return;}
-	// travelling too parallel to line and passed some lines
-	if (passive_status != PASSED_NONE && (current_distance() - correct_initial_distance > CORRECT_TOO_FAR)) {
-		passive_status = PASSED_COOL_DOWN;
-		SERIAL_PRINT("PP");
-		SERIAL_PRINTLN(current_distance() - correct_initial_distance);
+
+	if (!far_from_intersection(x, y)) {
+		if (passive_status > PASSED_NONE) passive_status = PASSED_NONE;
 		return;
 	}
 
-	if (!far_from_intersection(x, y)) return;
-
+	SERIAL_PRINTLN(passive_status, BIN);
 	// check if center one first activated; halfway there
 	if (on_line(CENTER) && !(passive_status & CENTER)) {
 		correct_half_distance = current_distance();
 		SERIAL_PRINTLN("PH");
 	}
+
 
 	// activate passive correct when either left or right sensor FIRST ACTIVATES
 	if ((on_line(LEFT) || on_line(RIGHT)) && passive_status == PASSED_NONE) {
@@ -40,12 +38,30 @@ void passive_correct() {
 		// return;
 	}
 
-
 	if ((passive_status & LEFT) && !on_line(LEFT)) passive_status |= PASSED_LEFT;
 	if ((passive_status & RIGHT) && !on_line(RIGHT)) passive_status |= PASSED_RIGHT;
 
 	// check if encountering any additional lines
 	passive_status |= (on_lines & ENCOUNTERED_ALL);
+
+	// distance from first to center too far, probably too parallel to line
+	if (passive_status > PASSED_NONE && !(passive_status & CENTER) && (current_distance() - correct_initial_distance > CORRECT_TOO_FAR)) {
+		passive_status = PASSED_COOL_DOWN;
+		SERIAL_PRINT("PP");
+		SERIAL_PRINTLN(current_distance() - correct_initial_distance);
+		return;
+	}
+	// already hit center, see if second half distance is too far from first half distance
+	else if ((passive_status & CENTER) && 
+		((current_distance() - correct_half_distance) >	// second half distance
+		(correct_half_distance - correct_initial_distance + CORRECT_CROSSING_TOLERANCE))) { // first half distance plus some room for error
+
+		SERIAL_PRINT("PD");
+		SERIAL_PRINT(correct_half_distance - correct_initial_distance);
+		SERIAL_PRINT(' ');
+		SERIAL_PRINTLN(current_distance() - correct_half_distance);
+		passive_status = PASSED_COOL_DOWN;
+	} 
 				
 	// correct at the first encounter of line for each sensor
 	if ((passive_status & ENCOUNTERED_ALL) == ENCOUNTERED_ALL) {
@@ -85,9 +101,9 @@ void passive_correct() {
 		// suspicious of an intersection
 		else {
 			SERIAL_PRINT("PI");
-			SERIAL_PRINT(current_distance() - correct_half_distance);
+			SERIAL_PRINT(correct_half_distance - correct_initial_distance);
 			SERIAL_PRINT(' ');
-			SERIAL_PRINTLN(correct_half_distance - correct_initial_distance);
+			SERIAL_PRINTLN(current_distance() - correct_half_distance);
 		}
 
 		// reset even if not activated on this line (false alarm)
@@ -99,6 +115,7 @@ void passive_correct() {
 void passive_position_correct() {
 	if (on_line(CENTER)) {
 		++cycles_on_line;
+		last_correct_distance = current_distance();
 		// activate line following if close enough to target and is on a line
 	}
 	else {
@@ -126,7 +143,7 @@ void passive_position_correct() {
 			passive_status = PASSED_COOL_DOWN;
 		}
 		// either C or L will have last correct distance updated
-		last_correct_distance = current_distance();
+		// last_correct_distance = current_distance();
 		cycles_on_line = 0;
 	}
 }
@@ -136,15 +153,30 @@ void passive_red_line_correct() {
 	if (abs(y - RENDEZVOUS_Y) < GRID_WIDTH*0.5 && layers[active_layer].speed > 0) {
 		digitalWrite(bottom_led, HIGH);
 		if (on_line(CENTER)) cycles_on_red_line = 0;
-		else if (on_line(RED) && !on_line(CENTER)) ++cycles_on_red_line;
+		else if (on_line(RED) && !on_line(CENTER)) {
+			++cycles_on_red_line;
+			// navigate trying to get back to red line
+			if (seeking_red_line) {
+				waypoint(LAYER_NAV);
+			}
+		}
 		else if (!on_line(RED)) {
 			// not false alarm
 			if (cycles_on_red_line >= CYCLES_CROSSING_LINE && current_distance() - last_correct_distance > DISTANCE_CENTER_TO_RED_ALLOWANCE) {
 				SERIAL_PRINT("RC");
 				SERIAL_PRINTLN(current_distance() - last_correct_distance);
-				y = RENDEZVOUS_Y;
 				// direction and signs are taken care of by sin and cos
 				float offset_y = DISTANCE_CENTER_TO_RED * sin(theta);
+				// avoid correcting when parallel to horizontal line
+				int offset_x = abs((int)x) % GRID_WIDTH;
+				if (abs(offset_y) > NEED_TO_HOPPER_CORRECT && (offset_x < INTERSECTION_TOO_CLOSE*0.5 || offset_x > GRID_WIDTH - INTERSECTION_TOO_CLOSE*0.5) && parallel_to_horizontal()) {
+					SERIAL_PRINTLN("-RC");
+					cycles_on_red_line = 0;
+					last_correct_distance = current_distance();
+					return;
+				}
+
+				y = RENDEZVOUS_Y;
 				// between [-180,0] left while going left
 				// x += DISTANCE_CENTER_TO_RED * cos(theta);
 				if (theta < 0) offset_y -= HALF_LINE_WIDTH;
@@ -154,6 +186,8 @@ void passive_red_line_correct() {
 
 				last_red_line_distance = current_distance();
 				last_correct_distance = last_red_line_distance;
+				if (side_of_board == SIDE_RIGHT) side_of_board = SIDE_LEFT;
+				else if (side_of_board == SIDE_LEFT) side_of_board = SIDE_RIGHT;
 			}
 
 			cycles_on_red_line = 0;

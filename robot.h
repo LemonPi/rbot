@@ -141,6 +141,7 @@ int square_heading();
 bool far_from_intersection(int candidate_x, int candidate_y);
 bool far_from_grid(int xx, int yy);
 bool close_to_wall(int candidate_x, int candidate_y);
+bool parallel_to_horizontal();
 
 // retrieve information from the robot
 bool get_on();
