@@ -68,8 +68,8 @@ void hard_turn() {
 		else turn.angle = TOP_SPEED;
 	}
 	else {
-		if (to_turn < 0) {turn.angle -= 0.35*MIN_SPEED;}
-		else {turn.angle += 0.35*MIN_SPEED;}
+		if (to_turn < 0) {turn.angle -= 0.40*MIN_SPEED;}
+		else {turn.angle += 0.40*MIN_SPEED;}
 	}
 }
 

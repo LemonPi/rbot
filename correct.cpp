@@ -155,8 +155,8 @@ void passive_red_line_correct() {
 		if (on_line(CENTER)) cycles_on_red_line = 0;
 		else if (on_line(RED) && !on_line(CENTER)) {
 			++cycles_on_red_line;
-			// navigate trying to get back to red line
-			if (seeking_red_line) {
+			// navigate trying to get back to red line and x is far enough forward
+			if (seeking_red_line && RENDEZVOUS_X - x < 3*RENDEZVOUS_CLOSE) {
 				waypoint(LAYER_NAV);
 			}
 		}

@@ -4,6 +4,9 @@
 
 namespace robot {
 
+int RENDEZVOUS_X = 1353;
+int RENDEZVOUS_Y = 800;
+
 byte ball_pin;
 byte bottom_led;
 
@@ -77,7 +80,7 @@ void user_waypoint() {
 		out_l = out_r = integral_l = integral_r = 0;
 		prev_l = tick_l;
 		prev_r = tick_r;
-		
+
 		hard_break(LAYER_NAV, 10);
 		layers[LAYER_TURN].active = true;
 		layers[LAYER_NAV].active = false;
